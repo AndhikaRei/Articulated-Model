@@ -1,0 +1,171 @@
+<html>
+
+<head>
+    <title>WebGL - IF3260</title>
+    <link rel="stylesheet" href="./index.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+</head>
+
+<body>
+    <div class="container-fluid" id="container">
+        <div class="row" style="margin-left: 0px!important;">
+            <div class="col-auto">
+                <canvas id="canvasWebGL" width="700" height="500"></canvas>
+            </div>
+            <div class="col-6">
+                <div id="help">
+                    <button class="btn btn-warning btn-md mb-3" id="help-button" onclick="onClickHelp()">Show
+                        Help</button>
+                    <div id="help-content">
+                        <div class="title-help">Load Hollow Object</div>
+                        <ul>
+                            <li>
+                                Masukkan file model yang ingin ditampilkan dengan menekan tombol
+                                choose file yang ada di kanan bawah
+                            </li>
+                        </ul>
+                        <div class="title-help">Translasi, Rotasi, dan Scalling</div>
+                        <ul>
+                            <li>Gunakan slider yang terdapat dibawah canvas</li>
+                            <li>
+                                Pilihlah sumbu yang ingin dilakukan translasi, rotasi, atau scalling
+                                dan geserlah slidernya.
+                            </li>
+                        </ul>
+                        <div class="title-help">Mengatur Jenis Proyeksi</div>
+                        <ul>
+                            <li> Tekan tombol projection yang ada di kanan bawah </li>
+                            <li> 
+                                Pilih projeksi yang diinginkan
+                            </li>
+                        </ul>
+                        <div class="title-help">Menggatur Kamera</div>
+                        <ul>
+                            <li> Mainkan slider radius untuk mengatur jarak kamera ke model  </li>
+                            <li> Mainkan slider rotate untuk melakukan rotasi pada kamera  </li>
+                        </ul>
+                        <div class="title-help">Menggunakan Shading</div>
+                        <ul>
+                            <li> Tekan tombol shading di sekitar kanan bawah </li>
+                        </ul>
+                        <div class="title-help">Kembali ke default view</div>
+                        <ul>
+                            <li> Tekan tombol default yang ada di sekitar kanan bawah </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="row pt-3">
+            <div class="tools-container">
+                <!-- Translation Slider -->
+                <div class="col-2 pe-4">
+                    <div class="row">
+                        <div class="title-tools">Translasi</div>
+                        <div class="slider-container">
+                            <label for="translate-x" class="form-label">Translate-x</label>
+                            <p class="d-inline value-input" id="translate-x-value">0</p>
+                            <input type="range" min="-700" max="700" value="0" step="1" class="form-range" id="translate-x">
+                            <label for="translate-y" class="form-label">Translate-y</label>
+                            <p class="d-inline value-input" id="translate-y-value">0</p>
+                            <input type="range" min="-500" max="500" value="0" step="1" class="form-range" id="translate-y">
+                            <label for="translate-z" class="form-label">Translate-z</label>
+                            <p class="d-inline value-input" id="translate-z-value">0</p>
+                            <input type="range" min="-700" max="700" value="0" step="1" class="form-range" id="translate-z">
+                        </div>
+                    </div>
+                </div>
+                <!-- Rotation Slider -->
+                <div class="col-2 pe-4">
+                    <div class="row">
+                        <div class="title-tools">Rotasi</div>
+                        <div class="slider-container">
+                            <label for="rotate-x" class="form-label">Rotate-x</label>
+                            <p class="d-inline value-input" id="rotate-x-value">0</p>
+                            <input type="range" min="-360" max="360" value="0" step="1" class="form-range" id="rotate-x">
+                            <label for="rotate-y" class="form-label">Rotate-y</label>
+                            <p class="d-inline value-input" id="rotate-y-value">0</p>
+                            <input type="range" min="-360" max="360" value="0" step="1" class="form-range" id="rotate-y">
+                            <label for="rotate-z" class="form-label">Rotate-z</label>
+                            <p class="d-inline value-input" id="rotate-z-value">0</p>
+                            <input type="range" min="-360" max="360" value="0" step="1" class="form-range" id="rotate-z">
+                        </div>
+                    </div>
+                </div>
+                <!-- Scaling Slider -->
+                <div class="col-2 pe-4">
+                    <div class="row">
+                        <div class="title-tools" >Skala</div>
+                        <div class="slider-container">
+                            <label for="scale-x" class="form-label">Scale-x</label>
+                            <p class="d-inline value-input" id="scale-x-value">1</p>
+                            <input type="range" min="-5" max="5" value="1" step="0.1" class="form-range" id="scale-x">
+                            <label for="scale-y" class="form-label">Scale-y</label>
+                            <p class="d-inline value-input" id="scale-y-value">1</p>
+                            <input type="range" min="-5" max="5" value="1" step="0.1" class="form-range" id="scale-y">
+                            <label for="scale-z" class="form-label">Scale-z</label>
+                            <p class="d-inline value-input" id="scale-z-value">1</p>
+                            <input type="range" min="-5" max="5" value="1" step="0.1" class="form-range" id="scale-z">
+                        </div>
+                    </div>
+                </div>
+                <!-- Camera  -->
+                <div class="col-2 pe-4">
+                    <div class="row">
+                        <div class="title-tools"> Camera</div>
+                        <div class="slider-container">
+                            <label for="radius" class="form-label">Radius</label>
+                            <p class="d-inline value-input" id="camera-radius-value">5</p>
+                            <input type="range" min="0" max="50" value="5" step="0.1" class="form-range" id="camera-radius">
+                            <label for="rotate" class="form-label">Rotate</label>
+                            <p class="d-inline value-input" id="camera-rotate-value">0</p>
+                            <input type="range" min="-360" max="360" value="0" step="1" class="form-range" id="camera-rotate">
+                        </div>
+                    </div>
+                </div>
+                <!-- Shader -->
+                <div class="col-1 pe-3">
+                    <div class="title-tools">Others</div>
+                    <input type="checkbox" class="btn-check" id="shader-btn" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="shader-btn">Shader</label>
+                    <button class="btn btn-outline-primary mt-3" id="default-view">Default</button>
+                </div>
+                <div class="col-3 pe-5 pt-4">
+                    <label for="projectionView" class="form-label">Projection</label>
+                    <select class="form-select mb-3" id="projection-view">
+                        <option value="1">Orthographic</option>
+                        <option value="2" selected>Perspective</option>
+                        <option value="3">Oblique</option>
+                    </select>
+                    <label for="fileInput" class="form-label">Load File</label>
+                    <input class="form-control" type="file" id="fileinput" onchange="importData()">
+                    
+                </div>
+
+            </div>
+        </div>
+
+        <div id="moving-line">
+            Memindahkan titik
+        </div>
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"
+        integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ=="
+        crossorigin="anonymous" defer></script>
+    <script type="text/javascript" src="./state.js"> </script>
+    <script type="text/javascript" src="./utility.js"> </script>
+    <script type="text/javascript" src="./mat4.js"> </script>
+    <script type="text/javascript" src="./hollowObject.js"> </script>
+    <script type="text/javascript" src="./webGl.js"> </script>
+    <script type="text/javascript" src="./main.js"> </script>
+    <script type="text/javascript" src="./dom.js"> </script>
+</body>
+
+
+</html>
