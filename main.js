@@ -1,7 +1,7 @@
 'use strict';
 
 // Main
-/**@type {HollowObject} */
+/**@type {ArticulatedObject} */
 let hollowObject = null;
 /**@type {WebGlManager} */
 let webglManager = null;
@@ -76,7 +76,7 @@ function main() {
 
 	// Init webglManager.
 	webglManager = new WebGlManager(gl, vertexShader, fragmentShader, shaderProgram);
-  hollowObject = loadHollowH();
+  hollowObject = loadPerson();
 
   webglManager.initBuffersHollow(hollowObject);
 	webglManager.drawHollowObjectScene();

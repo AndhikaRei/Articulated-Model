@@ -148,9 +148,9 @@ class WebGlManager {
          */
         this.programInfo = new programInfo(this.program, this.gl);
         
-        // Buffer for rendering hollow object
+        // Buffer for rendering articulated object
         /**
-         * buffers - buffer for rendering hollow object.
+         * buffers - buffer for rendering articulated object.
          * @type {Buffers[]}
          * @public
          */
@@ -263,12 +263,6 @@ class WebGlManager {
         // into the vertex arrays for each face's vertices.
         const indexBuffer = this.gl.createBuffer();
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-
-        const normalBuffer = this.gl.createBuffer();
-        this.gl.bindBuffer(this.gl.ARRAY_BUFFER,normalBuffer);
-
-        const vertexNormal = getVectorNormal(vertices);
-        this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(vertexNormal),this.gl.STATIC_DRAW);
         // Now pass the list of positions into WebGL to build the
         // shape. We do this by creating a Float32Array from the
         // JavaScript array, then use it to fill the current buffer.
@@ -282,13 +276,20 @@ class WebGlManager {
         ];
         // Now send the element array to GL
         this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), this.gl.STATIC_DRAW);
+
+        const normalBuffer = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER,normalBuffer);
+
+        const vertexNormal = getVectorNormal(vertices);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(vertexNormal),this.gl.STATIC_DRAW);
+        
         
         return new Buffers(positionBuffer, colorBuffer, indexBuffer, normalBuffer);
     };
 
     /**
-     * @description Init buffer from given hollow object.
-     * @param {HollowObject} hollowObject 
+     * @description Init buffer from given articulated object.
+     * @param {ArticulatedObject} hollowObject 
      */
     initBuffersHollow(hollowObject){
         this.clearScreen();
@@ -417,6 +418,7 @@ class WebGlManager {
         const modelViewMatrix = this.calculateModelViewMatrix();
         let normalMatrix = m4.inverse(modelViewMatrix);
         normalMatrix = m4.transpose(normalMatrix);
+
         // Tell WebGL how to pull out the positions from the position
         // buffer into the vertexPosition attribute
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffers.position);

@@ -1,7 +1,7 @@
-# Tugas Besar 2 IF3260 Hollow Object
+# Tugas Besar 2 IF3260 Articulated Object
 
 ## Deskripsi Program
-Program Hollow Object dibuat dengan menggunakan HTML, CSS, Javascript, dan WebGL. Terdapat lima objek hollow yang terdapat di folder models yaitu hollow cube, hollow H, hollow N, hollow trapezoidal prism, dan hollow pyramid. Program memiliki fitur-fitur yaitu:
+Program Articulated Object dibuat dengan menggunakan HTML, CSS, Javascript, dan WebGL. Terdapat lima objek hollow yang terdapat di folder models yaitu hollow cube, hollow H, hollow N, hollow trapezoidal prism, dan hollow pyramid. Program memiliki fitur-fitur yaitu:
 1. Load file untuk me-load atau membuat objek dari file dengan ekstensi .json yang ada di folder models
 2. Projection yang terdiri atas orthographic projection, perspective projection, dan oblique projection. User dapat memilih proyeksi yang diinginkan pada dropdown projection
 3. Mengubah translasi yang terdiri dari translasi searah sumbu s, sumbu y, dan sumbu z. User dapat menggeser ke arah positif atau negatif sesuai dengan sumbunya

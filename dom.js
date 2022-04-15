@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * @description reset all data in hollow object and in user interface.
+ * @description reset all data in articulated object and in user interface.
  */
 const resetDefault = () => {
     // Reset translate.
@@ -53,7 +53,7 @@ const resetDefault = () => {
 }
 
 /**
- * @description imports json file to render as an hollow object.
+ * @description imports json file to render as an articulated object.
  */
  const importData = () => {
     // Get file input.
@@ -91,9 +91,9 @@ const resetDefault = () => {
         // Construct new vertex object from parsed json.
         let vertices = hollowObj.vertices;
 
-        // Construct new hollow object from parsed json.
+        // Construct new articulated object from parsed json.
         hollowObject = null;
-        hollowObject = new HollowObject(vertices, edges);
+        hollowObject = new ArticulatedObject(vertices, edges);
         webglManager.clearScreen();
         webglManager.initBuffersHollow(hollowObject);
         webglManager.drawHollowObjectScene();
@@ -108,106 +108,106 @@ const resetDefault = () => {
 // Translate slider.
 // Slider translate x.
 translateXSlider.addEventListener('input', () => {
-    // Change displayed value in UI and in hollow object.
+    // Change displayed value in UI and in articulated object.
     translateXValue.innerHTML = translateXSlider.value;
     webglManager.translateValue[0] = 
         translateXSlider.value/ (webglManager.gl.canvas.clientWidth/4);
-    // Re-draw hollow object.
+    // Re-draw articulated object.
     webglManager.drawHollowObjectScene();
 });
 // Slider translate y.
 translateYSlider.addEventListener('input', () => {
-    // Change displayed value in UI and in hollow object.
+    // Change displayed value in UI and in articulated object.
     webglManager.translateValue[1] =
         translateYSlider.value/ (webglManager.gl.canvas.clientHeight/4);
     translateYValue.innerHTML = translateYSlider.value;
-    // Re-draw hollow object.
+    // Re-draw articulated object.
     webglManager.drawHollowObjectScene();
 });
 // Slider translate z.
 translateZslider.addEventListener('input', () => {
-    // Change displayed value in UI and in hollow object.
+    // Change displayed value in UI and in articulated object.
     webglManager.translateValue[2] = translateZslider.value / 50;
     translateZValue.innerHTML = translateZslider.value;
-    // Re-draw hollow object.
+    // Re-draw articulated object.
     webglManager.drawHollowObjectScene();
 });
 
 // Rotate slider.
 // Slider rotate x.
 rotateXSlider.addEventListener('input', () => {
-    // Change displayed value in UI and in hollow object.
+    // Change displayed value in UI and in articulated object.
     webglManager.rotateAngle[0] = rotateXSlider.value;
     rotateXValue.innerHTML = rotateXSlider.value;
-    // Re-draw hollow object.
+    // Re-draw articulated object.
     webglManager.drawHollowObjectScene();
 });
 // Slider rotate y.
 rotateYSlider.addEventListener('input', () => {
-    // Change displayed value in UI and in hollow object.
+    // Change displayed value in UI and in articulated object.
     webglManager.rotateAngle[1] = rotateYSlider.value;
     rotateYValue.innerHTML = rotateYSlider.value;
-    // Re-draw hollow object.
+    // Re-draw articulated object.
     webglManager.drawHollowObjectScene();
 });
 // Slider rotate z.
 rotateZSlider.addEventListener('input', () => {
-    // Change displayed value in UI and in hollow object.
+    // Change displayed value in UI and in articulated object.
     webglManager.rotateAngle[2] = rotateZSlider.value;
     rotateZValue.innerHTML = rotateZSlider.value;
-    // Re-draw hollow object.
+    // Re-draw articulated object.
     webglManager.drawHollowObjectScene();
 });
 
 // Scale slider.
 // Slider scale x.
 scaleXSlider.addEventListener('input', () => {
-    // Change displayed value in UI and in hollow object. 
+    // Change displayed value in UI and in articulated object. 
     webglManager.scaleValue[0] = scaleXSlider.value;
     scaleXValue.innerHTML = scaleXSlider.value;
-    // Re-draw hollow object.
+    // Re-draw articulated object.
     webglManager.drawHollowObjectScene();
 });
 // Slider scale y.
 scaleYSlider.addEventListener('input', () => {
-    // Change displayed value in UI and in hollow object.
+    // Change displayed value in UI and in articulated object.
     webglManager.scaleValue[1] = scaleYSlider.value;
     scaleYValue.innerHTML = scaleYSlider.value;
-    // Re-draw hollow object.
+    // Re-draw articulated object.
     webglManager.drawHollowObjectScene();
 });
 // Slider scale z.
 scaleZSlider.addEventListener('input', () => {
-    // Change displayed value in UI and in hollow object.
+    // Change displayed value in UI and in articulated object.
     webglManager.scaleValue[2] = scaleZSlider.value;
     scaleZValue.innerHTML = scaleZSlider.value;
-    // Re-draw hollow object.
+    // Re-draw articulated object.
     webglManager.drawHollowObjectScene();
 });
 
 // Camera slider.
 // Slider camera radius.
 cameraRadiusSlider.addEventListener('input', () => {
-    // Change displayed value in UI and in hollow object.
+    // Change displayed value in UI and in articulated object.
     webglManager.cameraRadius = cameraRadiusSlider.value;
     cameraRadiusValue.innerHTML = cameraRadiusSlider.value;
-    // Re-draw hollow object.
+    // Re-draw articulated object.
     webglManager.drawHollowObjectScene();
 });
 // Slider camera rotation.
 cameraRotateSlider.addEventListener('input', () => {
-    // Change displayed value in UI and in hollow object.
+    // Change displayed value in UI and in articulated object.
     webglManager.cameraRotation = cameraRotateSlider.value;
     cameraRotateValue.innerHTML = cameraRotateSlider.value;
-    // Re-draw hollow object.
+    // Re-draw articulated object.
     webglManager.drawHollowObjectScene();
 });
 
 // Projection View
 projectionView.addEventListener('change', () => {
-    // Change displayed in hollow object.
+    // Change displayed in articulated object.
     webglManager.projectionType = projectionView.value;
-    // Re-draw hollow object.
+    // Re-draw articulated object.
     webglManager.drawHollowObjectScene();
 });
 
