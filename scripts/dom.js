@@ -1,3 +1,10 @@
+/// <reference path="./state.js" />
+/// <reference path="./utility.js" />
+/// <reference path="./mat4.js" />
+/// <reference path="./articulatedObject.js" />
+/// <reference path="./webgl.js" />
+/// <reference path="./main.js" />
+
 'use strict';
 
 /**

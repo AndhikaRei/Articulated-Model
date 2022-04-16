@@ -1,5 +1,9 @@
 // References: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Creating_3D_objects_using_WebGL
 // Github: https://github.com/mdn/webgl-examples/tree/gh-pages/tutorial/sample5
+/// <reference path="./state.js" />
+/// <reference path="./utility.js" />
+/// <reference path="./mat4.js" />
+/// <reference path="./articulatedObject.js" />
 
 'use strict';
 

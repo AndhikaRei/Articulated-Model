@@ -1,3 +1,4 @@
+/// <reference path="./state.js" />
 'use strict';
 
 /**

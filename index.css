@@ -3,6 +3,10 @@
     margin: 0;
 }
 
+ul {
+    padding-left: 17.5px !important;
+}
+
 .value-input {
     margin-left: auto!important;
 }
