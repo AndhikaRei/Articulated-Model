@@ -56,7 +56,7 @@ const resetDefault = () => {
     projectionView.value = 2;
     webglManager.projectionType = 2;
 
-    webglManager.drawHollowObjectScene();
+    webglManager.drawArticulatedObjectScene();
 }
 
 /**
@@ -76,10 +76,10 @@ const resetDefault = () => {
     // Read file.
     var reader = new FileReader();
     reader.onload = (e) => {
-        let hollowObj = null;
+        let articulatedObj = null;
         try {
-            hollowObj = JSON.parse(e.target.result);
-            if (!hollowObj) return;
+            articulatedObj = JSON.parse(e.target.result);
+            if (!articulatedObj) return;
             
         } catch (e) {
             // Alert error message.
@@ -89,24 +89,44 @@ const resetDefault = () => {
 
         // Construct new egde object from parsed json.
         let edges = [];
-        for (let i = 0; i < hollowObj.edge.length; i++) {
-            let currentEdge = hollowObj.edge[i];
+        for (let i = 0; i < articulatedObj.edge.length; i++) {
+            let currentEdge = articulatedObj.edge[i];
             let newEdge = new Edge(currentEdge.topology, currentEdge.color);
             edges.push(newEdge);
         }
 
         // Construct new vertex object from parsed json.
-        let vertices = hollowObj.vertices;
+        let vertices = articulatedObj.vertices;
 
         // Construct new articulated object from parsed json.
-        hollowObject = null;
-        hollowObject = new ArticulatedObject(vertices, edges);
+        articulatedObject = null;
+        articulatedObject = new ArticulatedObject(vertices, edges);
         webglManager.clearScreen();
-        webglManager.initBuffersHollow(hollowObject);
-        webglManager.drawHollowObjectScene();
+        webglManager.initBuffersArticulated(articulatedObject);
+        webglManager.drawArticulatedObjectScene();
     };
     reader.readAsText(data);
 };
+
+const moveBodyPart = (index, ratio) => {
+    // Check if body part with current index is exist.
+    if (!webglManager.articulatedModel.edge[index]) {
+        return
+    };
+
+    // Get current body part.
+    let currentBodyPart = webglManager.articulatedModel.edge[index];
+
+    // Calculate current angle.
+    const interval = currentBodyPart.maxRotateAngle - currentBodyPart.minRotateAngle;
+    const currentAngle = currentBodyPart.minRotateAngle + interval * ratio;
+
+    // Modify nodesRad for current body part.
+    webglManager.nodesRad[index] = degToRad(currentAngle);
+
+    // Draw the object.
+    webglManager.drawArticulatedObjectScene();
+}
 
 /**
  * Event listener
@@ -120,7 +140,7 @@ translateXSlider.addEventListener('input', () => {
     webglManager.translateValue[0] = 
         translateXSlider.value/ (webglManager.gl.canvas.clientWidth/4);
     // Re-draw articulated object.
-    webglManager.drawHollowObjectScene();
+    webglManager.drawArticulatedObjectScene();
 });
 // Slider translate y.
 translateYSlider.addEventListener('input', () => {
@@ -129,7 +149,7 @@ translateYSlider.addEventListener('input', () => {
         translateYSlider.value/ (webglManager.gl.canvas.clientHeight/4);
     translateYValue.innerHTML = translateYSlider.value;
     // Re-draw articulated object.
-    webglManager.drawHollowObjectScene();
+    webglManager.drawArticulatedObjectScene();
 });
 // Slider translate z.
 translateZslider.addEventListener('input', () => {
@@ -137,7 +157,7 @@ translateZslider.addEventListener('input', () => {
     webglManager.translateValue[2] = translateZslider.value / 50;
     translateZValue.innerHTML = translateZslider.value;
     // Re-draw articulated object.
-    webglManager.drawHollowObjectScene();
+    webglManager.drawArticulatedObjectScene();
 });
 
 // Rotate slider.
@@ -147,7 +167,7 @@ rotateXSlider.addEventListener('input', () => {
     webglManager.rotateAngle[0] = rotateXSlider.value;
     rotateXValue.innerHTML = rotateXSlider.value;
     // Re-draw articulated object.
-    webglManager.drawHollowObjectScene();
+    webglManager.drawArticulatedObjectScene();
 });
 // Slider rotate y.
 rotateYSlider.addEventListener('input', () => {
@@ -155,7 +175,7 @@ rotateYSlider.addEventListener('input', () => {
     webglManager.rotateAngle[1] = rotateYSlider.value;
     rotateYValue.innerHTML = rotateYSlider.value;
     // Re-draw articulated object.
-    webglManager.drawHollowObjectScene();
+    webglManager.drawArticulatedObjectScene();
 });
 // Slider rotate z.
 rotateZSlider.addEventListener('input', () => {
@@ -163,7 +183,7 @@ rotateZSlider.addEventListener('input', () => {
     webglManager.rotateAngle[2] = rotateZSlider.value;
     rotateZValue.innerHTML = rotateZSlider.value;
     // Re-draw articulated object.
-    webglManager.drawHollowObjectScene();
+    webglManager.drawArticulatedObjectScene();
 });
 
 // Scale slider.
@@ -173,7 +193,7 @@ scaleXSlider.addEventListener('input', () => {
     webglManager.scaleValue[0] = scaleXSlider.value;
     scaleXValue.innerHTML = scaleXSlider.value;
     // Re-draw articulated object.
-    webglManager.drawHollowObjectScene();
+    webglManager.drawArticulatedObjectScene();
 });
 // Slider scale y.
 scaleYSlider.addEventListener('input', () => {
@@ -181,7 +201,7 @@ scaleYSlider.addEventListener('input', () => {
     webglManager.scaleValue[1] = scaleYSlider.value;
     scaleYValue.innerHTML = scaleYSlider.value;
     // Re-draw articulated object.
-    webglManager.drawHollowObjectScene();
+    webglManager.drawArticulatedObjectScene();
 });
 // Slider scale z.
 scaleZSlider.addEventListener('input', () => {
@@ -189,7 +209,7 @@ scaleZSlider.addEventListener('input', () => {
     webglManager.scaleValue[2] = scaleZSlider.value;
     scaleZValue.innerHTML = scaleZSlider.value;
     // Re-draw articulated object.
-    webglManager.drawHollowObjectScene();
+    webglManager.drawArticulatedObjectScene();
 });
 
 // Camera slider.
@@ -199,7 +219,7 @@ cameraRadiusSlider.addEventListener('input', () => {
     webglManager.cameraRadius = cameraRadiusSlider.value;
     cameraRadiusValue.innerHTML = cameraRadiusSlider.value;
     // Re-draw articulated object.
-    webglManager.drawHollowObjectScene();
+    webglManager.drawArticulatedObjectScene();
 });
 // Slider camera rotation.
 cameraRotateSlider.addEventListener('input', () => {
@@ -207,7 +227,7 @@ cameraRotateSlider.addEventListener('input', () => {
     webglManager.cameraRotation = cameraRotateSlider.value;
     cameraRotateValue.innerHTML = cameraRotateSlider.value;
     // Re-draw articulated object.
-    webglManager.drawHollowObjectScene();
+    webglManager.drawArticulatedObjectScene();
 });
 
 // Projection View
@@ -215,7 +235,7 @@ projectionView.addEventListener('change', () => {
     // Change displayed in articulated object.
     webglManager.projectionType = projectionView.value;
     // Re-draw articulated object.
-    webglManager.drawHollowObjectScene();
+    webglManager.drawArticulatedObjectScene();
 });
 
 // Default View.
@@ -225,5 +245,14 @@ defaultViewButton.addEventListener('click', () => {
 
 shaderBtn.addEventListener('click', () => {
     webglManager.changeShaders();
-    webglManager.drawHollowObjectScene();
+    webglManager.drawArticulatedObjectScene();
 });
+
+// Loop for each input body.
+for (let i = 0; i < arrInputBody.length; i++) {
+    arrInputBody[i].addEventListener('input', () => {
+        const ratio = arrInputBody[i].value;
+        moveBodyPart(i, ratio); 
+    });
+}
+

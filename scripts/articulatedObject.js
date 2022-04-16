@@ -11,17 +11,17 @@ class Edge {
      * @param {number[6][4]} topology - List of list of vertices that represent edge faces. 
      * @param {number[][4]} color - List of list of integer that represent edge faces color.
      * @param {number[3]} joints - List of list of integer that represent edge joints (sendi) relative to parent.
+     * @param {string} name - Name of edge.
      * @param {number} sibling - Index of first sibling edge in list of edge. You can find the list in articulated object.
      * @param {number} child - Index of first child edge in list of edge. You can find the list in articulated object.
      * @param {number} rotationAxis - The axis of rotation, 0 for x, 1 for y, 2 for z, 3 for no rotation.
-     * @param {number} rotationAngle - The angle of rotation.
      * @param {number} maxRotateAngle - The maximum angle of rotation.
      * @param {number} minRotateAngle - The minimum angle of rotation.
      * @param {number} startRotateAngle - The start angle of rotation.
      * @param {number} rotateDirection - The direction of rotation, 1 for clockwise, -1 for counterclockwise.
      */
-    constructor(topology, color, joints, sibling, child, rotationAxis, rotationAngle, 
-        maxRotateAngle, minRotateAngle, startRotateAngle, rotateDirection) {
+    constructor(topology, color, joints, name, sibling, child, rotationAxis, maxRotateAngle, 
+        minRotateAngle, startRotateAngle, rotateDirection) {
         /**
          * @description List of list of vertices that represent edge faces.
          * @type {number[6][4]}
@@ -47,6 +47,13 @@ class Edge {
         this.joints = joints;
 
         /**
+         * @description Name of edge.
+         * @type {string}
+         * @public
+         */
+        this.name = name;
+
+        /**
          * @description Index of first sibling edge in list of edge. You can find the list in articulated object.
          * @type {number}
          * @public
@@ -66,14 +73,6 @@ class Edge {
          * @public
          */
         this.rotationAxis = rotationAxis;
-
-        /**
-         * @description The angle of rotation.
-         * @type {number}
-         * @public
-         */
-
-        this.rotationAngle = rotationAngle;
 
         /**
          * @description The maximum angle of rotation.
@@ -125,7 +124,6 @@ class ArticulatedObject {
          */
         this.vertices = vertices;
 
-        // console.log(vertices);
         
         /**
          * @description List of edge in articulated object.
@@ -299,10 +297,10 @@ const loadPerson = () => {
     // Animation properties.
     // HEAD.
     const hJoints = [0, bh*0.5, 0];
+    const hName = "Head";
     const hSibling = 2;
     const hChild = null;
     const hrotationAxis = 1;
-    const hrotationAngle = 0;
     const hmaxRotateAngle = 45;
     const hminRotateAngle = -45;
     const hstartRotateAngle = 0;
@@ -310,123 +308,123 @@ const loadPerson = () => {
 
     // BODY.
     const bJoints = [0, 0, 0];
+    const bName = "Body";
     const bSibling = null;
-    const bChild = 0;
+    const bChild = 1;
     const brotationAxis = 3;
-    const brotationAngle = 0;
     const bmaxRotateAngle = 180;
     const bminRotateAngle = 180;
     const bstartRotateAngle = 0;
     const brotateDirection = 1;
 
     // RIGHT ARM.
-    const raJoints = [bl * 0.5, bh*0.5 - ah*0.5, 0];
-    const raSibling = null;
+    const raJoints = [bl * 0.5, bh*0.5 - aw*0.5, 0];
+    const raName = "Right Arm";
+    const raSibling = 4;
     const raChild = 3;
     const raRotationAxis = 0;
-    const raRotationAngle = 0;
-    const raMaxRotateAngle = 120;
-    const raMinRotateAngle = -120;
+    const raMaxRotateAngle = 90;
+    const raMinRotateAngle = -90;
     const raStartRotateAngle = 0;
     const raRotateDirection = 1;
 
     // SMALL RIGHT ARM.
-    const sraJoints = [bl * 0.5 + al* 0.5, ah , 0];
+    const sraJoints = [al* 0.5, -1*ah + sah , 0];
+    const sraName = "Right Hand";
     const sraSibling = null;
     const sraChild = null;
     const sraRotationAxis = 0;
-    const sraRotationAngle = 0;
-    const sraMaxRotateAngle = 120;
-    const sraMinRotateAngle = -120;
+    const sraMaxRotateAngle = 50;
+    const sraMinRotateAngle = -50;
     const sraStartRotateAngle = 0;
     const sraRotateDirection = 1;
 
     // LEFT ARM.
-    const laJoints = [bl * 0.5 - al* 0.5, bh*0.5 - ah*0.5, 0];
-    const laSibling = null;
+    const laJoints = [bl * 0.5 - al* 0.5, bh*0.5 - aw*0.5, 0];
+    const laName = "Left Arm";
+    const laSibling = 6;
     const laChild = 5;
     const laRotationAxis = 0;
-    const laRotationAngle = 0;
-    const laMaxRotateAngle = 120;
-    const laMinRotateAngle = -120;
+    const laMaxRotateAngle = 90;
+    const laMinRotateAngle = -90;
     const laStartRotateAngle = 0;
-    const laRotateDirection = 1;
+    const laRotateDirection = 0;
 
     // SMALL LEFT ARM.
-    const slaJoints = [bl * 0.5 - al* 0.5, ah , 0];
+    const slaJoints = [-1 * al* 0.5, -1*ah + sah , 0];
+    const slaName = "Left Hand";
     const slaSibling = null;
     const slaChild = null;
     const slaRotationAxis = 0;
-    const slaRotationAngle = 0;
-    const slaMaxRotateAngle = 120;
-    const slaMinRotateAngle = -120;
+    const slaMaxRotateAngle = 50;
+    const slaMinRotateAngle = -50;
     const slaStartRotateAngle = 0;
-    const slaRotateDirection = 1;
+    const slaRotateDirection = 0;
 
     // RIGHT LEG.
-    const rlJoints = [bl * 0.5, bh*0.5 - lh*0.5, 0];
-    const rlSibling = null;
+    const rlJoints = [bl * 0.5 - ll*0.5, -1*bh*0.5, 0];
+    const rlName = "Right Leg";
+    const rlSibling = 8;
     const rlChild = 7;
     const rlRotationAxis = 0;
-    const rlRotationAngle = 0;
-    const rlMaxRotateAngle = 120;
-    const rlMinRotateAngle = -120;
+    const rlMaxRotateAngle = 60;
+    const rlMinRotateAngle = -60;
     const rlStartRotateAngle = 0;
-    const rlRotateDirection = 1;
+    const rlRotateDirection = 0;
 
     // SMALL RIGHT LEG.
-    const srlJoints = [bl * 0.5 + ll* 0.5, lh , 0];
+    const srlJoints = [0, -1*lh + -0.5*bh , 0];
+    const srlName = "Right Foot";
     const srlSibling = null;
     const srlChild = null;
     const srlRotationAxis = 0;
-    const srlRotationAngle = 0;
-    const srlMaxRotateAngle = 120;
-    const srlMinRotateAngle = -120;
+    const srlMaxRotateAngle = 50;
+    const srlMinRotateAngle = -50;
     const srlStartRotateAngle = 0;
-    const srlRotateDirection = 1;
+    const srlRotateDirection = 0;
 
     // LEFT LEG.
-    const llJoints = [bl * 0.5, bh*0.5 - lh*0.5, 0];
+    const llJoints = [-1*(bl * 0.5 - ll*0.5), -1*bh*0.5, 0];
+    const llName = "Left Leg";
     const llSibling = null;
     const llChild = 9;
     const llRotationAxis = 0;
-    const llRotationAngle = 0;
-    const llMaxRotateAngle = 120;
-    const llMinRotateAngle = -120;
+    const llMaxRotateAngle = 60;
+    const llMinRotateAngle = -60;
     const llStartRotateAngle = 0;
     const llRotateDirection = 1;
 
     // SMALL LEFT LEG.
-    const sllJoints = [bl * 0.5 + ll* 0.5, lh , 0];
+    const sllJoints = [0, -1*lh + -0.5*bh , 0];
+    const sllName = "Left Foot";
     const sllSibling = null;
     const sllChild = null;
     const sllRotationAxis = 0;
-    const sllRotationAngle = 0;
-    const sllMaxRotateAngle = 120;
-    const sllMinRotateAngle = -120;
+    const sllMaxRotateAngle = 50;
+    const sllMinRotateAngle = -50;
     const sllStartRotateAngle = 0;
     const sllRotateDirection = 1;
 
     const vertices = [
-        // HEAD.
-        [htlcx, htlcy-hh, htlcz + hw], // 0
-        [htlcx + hl, htlcy-hh, htlcz + hw], // 1
-        [htlcx + hl, htlcy, htlcz + hw], // 2
-        [htlcx, htlcy, htlcz + hw], // 3
-        [htlcx, htlcy-hh, htlcz], // 4
-        [htlcx + hl, htlcy-hh, htlcz], // 5
-        [htlcx + hl, htlcy, htlcz], // 6
-        [htlcx, htlcy, htlcz], // 7
-
         // BODY.
-        [btlcx, btlcy-bh, btlcz + bw], // 8
-        [btlcx + bl, btlcy-bh, btlcz + bw], // 9
-        [btlcx + bl, btlcy, btlcz + bw], // 10
-        [btlcx, btlcy, btlcz + bw], // 11
-        [btlcx, btlcy-bh, btlcz], // 12
-        [btlcx + bl, btlcy-bh, btlcz], // 13
-        [btlcx + bl, btlcy, btlcz], // 14
-        [btlcx, btlcy, btlcz], // 15
+        [btlcx, btlcy-bh, btlcz + bw], // 0
+        [btlcx + bl, btlcy-bh, btlcz + bw], // 1
+        [btlcx + bl, btlcy, btlcz + bw], // 2
+        [btlcx, btlcy, btlcz + bw], // 3
+        [btlcx, btlcy-bh, btlcz], // 4
+        [btlcx + bl, btlcy-bh, btlcz], // 5
+        [btlcx + bl, btlcy, btlcz], // 6
+        [btlcx, btlcy, btlcz], // 7
+
+        // HEAD.
+        [htlcx, htlcy-hh, htlcz + hw], // 8
+        [htlcx + hl, htlcy-hh, htlcz + hw], // 9
+        [htlcx + hl, htlcy, htlcz + hw], // 10
+        [htlcx, htlcy, htlcz + hw], // 11
+        [htlcx, htlcy-hh, htlcz], // 12
+        [htlcx + hl, htlcy-hh, htlcz], // 13
+        [htlcx + hl, htlcy, htlcz], // 14
+        [htlcx, htlcy, htlcz], // 15
 
         // RIGHT ARM.
         [ratlcx, ratlcy-ah, ratlcz + aw], // 16
@@ -510,41 +508,14 @@ const loadPerson = () => {
     ]
 
     const edges = [
-        // Head.
-        new Edge([
+         // Body.
+         new Edge([
             [0, 1, 2, 3], // Front face.
             [4, 5, 6, 7], // Back face.
             [3, 2, 6, 7], // Top face.
             [0, 1, 5, 4], // Bottom face.
             [1, 5, 6, 2], // Right face.
             [0, 4, 7, 3], // Left face.
-        ], [
-            // Fill all face with generated color.
-            randomColorHead,
-            randomColorHead,
-            randomColorHead,
-            randomColorHead,
-            randomColorHead,
-            randomColorHead
-        ],
-            hJoints,
-            hSibling,
-            hChild,
-            hrotationAxis,
-            hrotationAngle,
-            hmaxRotateAngle,
-            hminRotateAngle,
-            hstartRotateAngle,
-            hrotateDirection,
-        ),
-        // Body.
-        new Edge([
-            [8, 9, 10, 11], // Front face.
-            [12, 13, 14, 15], // Back face.
-            [11, 10, 14, 15], // Top face.
-            [8, 9, 13, 12], // Bottom face.
-            [9, 13, 14, 10], // Right face.
-            [8, 12, 15, 11], // Left face.
         ], [
             // Fill all face with generated color.
             randomColorBody,
@@ -555,16 +526,43 @@ const loadPerson = () => {
             randomColorBody
         ],
             bJoints,
+            bName,
             bSibling,
             bChild,
             brotationAxis,
-            brotationAngle,
             bmaxRotateAngle,
             bminRotateAngle,
             bstartRotateAngle,
             brotateDirection,
         ),
 
+        // Head.
+        new Edge([
+            [8, 9, 10, 11], // Front face.
+            [12, 13, 14, 15], // Back face.
+            [11, 10, 14, 15], // Top face.
+            [8, 9, 13, 12], // Bottom face.
+            [9, 13, 14, 10], // Right face.
+            [8, 12, 15, 11], // Left face.
+        ], [
+            // Fill all face with generated color.
+            randomColorHead,
+            randomColorHead,
+            randomColorHead,
+            randomColorHead,
+            randomColorHead,
+            randomColorHead
+        ],
+            hJoints,
+            hName,
+            hSibling,
+            hChild,
+            hrotationAxis,
+            hmaxRotateAngle,
+            hminRotateAngle,
+            hstartRotateAngle,
+            hrotateDirection,
+        ),
         // Right arm.
         new Edge([
             [16, 17, 18, 19], // Front face.
@@ -583,10 +581,10 @@ const loadPerson = () => {
             randomColorArm
         ],
             raJoints,
+            raName,
             raSibling,
             raChild,
             raRotationAxis,
-            raRotationAngle,
             raMaxRotateAngle,
             raMinRotateAngle,
             raStartRotateAngle,
@@ -611,10 +609,10 @@ const loadPerson = () => {
             randomColorHand
         ],
             sraJoints,
+            sraName,
             sraSibling,
             sraChild,
             sraRotationAxis,
-            sraRotationAngle,
             sraMaxRotateAngle,
             sraMinRotateAngle,
             sraStartRotateAngle,
@@ -639,10 +637,10 @@ const loadPerson = () => {
             randomColorArm
         ],
             laJoints,
+            laName,
             laSibling,
             laChild,
             laRotationAxis,
-            laRotationAngle,
             laMaxRotateAngle,
             laMinRotateAngle,
             laStartRotateAngle,
@@ -667,10 +665,10 @@ const loadPerson = () => {
             randomColorHand
         ], 
             slaJoints,
+            slaName,
             slaSibling,
             slaChild,
             slaRotationAxis,
-            slaRotationAngle,
             slaMaxRotateAngle,
             slaMinRotateAngle,
             slaStartRotateAngle,
@@ -695,10 +693,10 @@ const loadPerson = () => {
             randomColorLegs
         ],
             rlJoints,
+            rlName,
             rlSibling,
             rlChild,
             rlRotationAxis,
-            rlRotationAngle,
             rlMaxRotateAngle,
             rlMinRotateAngle,
             rlStartRotateAngle,
@@ -723,10 +721,10 @@ const loadPerson = () => {
             randomColorFeet
         ],
             srlJoints,
+            srlName,
             srlSibling,
             srlChild,
             srlRotationAxis,
-            srlRotationAngle,
             srlMaxRotateAngle,
             srlMinRotateAngle,
             srlStartRotateAngle,
@@ -751,10 +749,10 @@ const loadPerson = () => {
             randomColorLegs
         ],
             llJoints,
+            llName,
             llSibling,
             llChild,
             llRotationAxis,
-            llRotationAngle,
             llMaxRotateAngle,
             llMinRotateAngle,
             llStartRotateAngle,
@@ -779,10 +777,10 @@ const loadPerson = () => {
             randomColorFeet
         ],
             sllJoints,
+            sllName,
             sllSibling,
             sllChild,
             sllRotationAxis,
-            sllRotationAngle,
             sllMaxRotateAngle,
             sllMinRotateAngle,
             sllStartRotateAngle,

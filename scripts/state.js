@@ -250,7 +250,7 @@ let isHelpActive = false;
 
 // Main
 /**@type {ArticulatedObject} */
-let hollowObject = null;
+let articulatedObject = null;
 /**@type {WebGlManager} */
 let webglManager = null;
 

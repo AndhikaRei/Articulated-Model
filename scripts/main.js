@@ -35,10 +35,11 @@ function main() {
 
 	// Init webglManager.
 	webglManager = new WebGlManager(gl, vertexShader, fragmentShader, shaderProgram);
-	hollowObject = loadPerson();
+	articulatedObject = loadPerson();
 
-  webglManager.initBuffersHollow(hollowObject);
-	webglManager.drawHollowObjectScene();
+  	webglManager.initBuffersArticulated(articulatedObject);
+	webglManager.loadName();
+	webglManager.drawArticulatedObjectScene(true);
 }
 
 

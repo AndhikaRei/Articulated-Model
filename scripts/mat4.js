@@ -496,6 +496,25 @@ const m4 = {
 	},
 
 	/**
+	 * @description Do rotation on x, y, or z axis depending on the value of the axis parameter 
+	 * @param {number} angleInRadians angle in radians
+	 * @param {number} rotateAxis 0 for x, 1 for y, 2 for z
+	 * @returns {number[]} m matrix
+	 * 
+	 */
+	 articulatedRotate: function(m, angleInRadians, rotateAxis) {
+		if (rotateAxis == 0){
+		  return m4.xRotate(m, angleInRadians);
+		} else if (rotateAxis == 1){
+		  return m4.yRotate(m, angleInRadians);
+		} else if (rotateAxis == 2){
+		  return m4.zRotate(m, angleInRadians);
+		} else {
+		  return m;
+		}
+	},
+
+	/**
 	 * @description scale matrix m by factor sx, sy, sz
 	 * @param {number[][]} m matrix
 	 * @param {number} sx scaling x

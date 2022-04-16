@@ -95,6 +95,41 @@ class programInfo {
 }
 
 /**
+ * Class Node Articulated.
+ * @classdesc hold the information of node in articulated model.
+ */
+class NodeArticulated {
+    /**
+     * @description Create node object.
+     * @param {number[]} transform - Transformation matrix of current node.
+     * @param {number} sibling - Sibling of current node.
+     * @param {number} child - Child of current node.
+     */
+    constructor(transform, sibling, child) {
+        /**
+         * @description Transformation matrix of current node.
+         * @type {number[]}
+         * @public
+         */
+        this.transform = transform;
+
+        /**
+         * @description Sibling of current node.
+         * @type {number}
+         * @public
+         */
+        this.sibling = sibling;
+
+        /**
+         * @description Child of current node.
+         * @type {number}
+         * @public
+         */
+        this.child = child;
+    }
+}
+
+/**
  * Class WebGLManager
  * @classdesc Manage WebGL context.
  */
@@ -236,6 +271,47 @@ class WebGlManager {
          */
         this.fov = 45;
 
+        /**
+         * articulatedModel - Articulated model.
+         * @type {ArticulatedObject}
+         * @public
+         */
+        this.articulatedModel = null;
+
+        /**
+         * nodes - Nodes of articulated model.
+         * @type {Node[]}
+         * @public
+         */
+        this.nodes = []
+
+        /**
+         * nodesRad - Rotation angle of each node ni radian.
+         * @type {number[]}
+         * @public
+         */
+        this.nodesRad = []
+
+        /**
+         * modelViewMatrix - Model view matrix.
+         * @type {number[]}
+         * @public
+         */
+        this.modelViewMatrix = []
+
+        /**
+         * projectionMatrix - Projection matrix.
+         * @type {number[]}
+         * @public
+         */
+        this.projectionMatrix = []
+
+        /**
+         * parentMatrix - Parent model view matrix history used to calculate child model view matrix.
+         * @type {number[][]}
+         * @public
+         */
+        this.parentMatrix = []
     }
 
     /**
@@ -293,24 +369,68 @@ class WebGlManager {
 
     /**
      * @description Init buffer from given articulated object.
-     * @param {ArticulatedObject} hollowObject 
+     * @param {ArticulatedObject} articulatedObject 
      */
-    initBuffersHollow(hollowObject){
+    initBuffersArticulated(articulatedObject){
         this.clearScreen();
-        const webGlBufferData = hollowObject.getWebGlBufferData();
+        const webGlBufferData = articulatedObject.getWebGlBufferData();
         const vertices = webGlBufferData.glVertices;
         const faceColors = webGlBufferData.glFaceColors;
-
+    
         // Save vertex positions and colors.
         this.vertices = vertices;
         this.faceColors = faceColors;
 
+        // Save articulated object.
+        this.articulatedModel = articulatedObject;
+
+        // Init nodes for all edges(object).
+        this.nodes = [];
+        for(let i = 0; i < articulatedObject.edge.length; i++){
+            this.initNodeArticulated(i, true);
+        }
+        
         // Init buffer for all edges.
         this.buffers = [];
         for (let i = 0; i < vertices.length; i ++) {
             const buffer = this.initBuffers(vertices[i], faceColors[i]);
             this.buffers.push(buffer);
         }
+    }
+
+    /**
+     * @description Init node for given index of articulated object edge.
+     * @param {number} index 
+     * @param {boolean} is_init 
+     */
+    initNodeArticulated(index, is_init){
+        // Calculate the transformation matrix of current node.
+        // Transformation matrix initialization.
+        let transform = m4.identity();
+
+        // Get the current node data from articulated model.
+        const currentEdge = this.articulatedModel.edge[index];
+        const jointX = currentEdge.joints[0];
+        const jointY = currentEdge.joints[1];
+        const jointZ = currentEdge.joints[2];
+        const minRotateAngle = currentEdge.minRotateAngle;
+        const maxRotateAngle = currentEdge.maxRotateAngle;
+        const rotationAxis = currentEdge.rotationAxis;
+        const sibling = currentEdge.sibling;
+        const child = currentEdge.child;
+
+        // If first time rendering the node then set the anggle
+        if (is_init) {
+            this.nodesRad[index] = degToRad(currentEdge.startRotateAngle);
+        }
+
+        // Process the transformation matrix.
+        transform = m4.translate(transform, jointX, jointY, jointZ);
+        transform = m4.articulatedRotate(transform, this.nodesRad[index], rotationAxis);
+        transform = m4.translate(transform, -1 * jointX, -1 * jointY, -1 * jointZ);
+
+        // Fill the nodes array.
+        this.nodes[index] = new NodeArticulated(transform, sibling, child );
     }
 
     /**
@@ -325,13 +445,55 @@ class WebGlManager {
     /**
      * @description Draw all buffers.
      */
-    drawHollowObjectScene() {
+    drawArticulatedObjectScene(is_first = false) {
         // Clear the screen
         this.clearScreen();
 
-        // Draw for every buffer exist in this.buffers.
-        for (let i = 0; i < this.buffers.length; i++) {
-            this.drawScene(this.buffers[i], this.vertices[i].length / 2);
+        // Process the root model view matrix and projection matrix for all node.
+        this.modelViewMatrix = this.calculateModelViewMatrix();
+        this.projectionMatrix = this.calculateProjectionMatrix();
+
+        // Draw all buffers using dfs algorithm.
+        this.parentMatrix = [];
+
+        if (!is_first) {
+            // Init nodes for all edges(object).
+            this.nodes = [];
+            for(let i = 0; i < this.articulatedModel.edge.length; i++){
+                this.initNodeArticulated(i, false);
+            }
+        }
+        this.drawSceneDfs(0);
+    }
+
+    /**
+     * @description Draw each node in the articulated model tree using dfs algorithm.
+     * @param {number} index - index of node that are processed.
+     */
+    drawSceneDfs(index){
+        // Get current node.
+        const currentNode = this.nodes[index];
+
+        // Push current model view matrix to parent matrix list.
+        this.parentMatrix.push(this.modelViewMatrix);
+
+        // Calculate the model view matrix for current node.
+        this.modelViewMatrix = m4.multiply(this.modelViewMatrix, currentNode.transform);
+
+        // Draw current node.
+        this.drawScene(this.buffers[index], this.vertices[index].length / 2);
+
+        // Draw child node.
+        if (currentNode.child != null) {
+            this.drawSceneDfs(currentNode.child);
+        }
+
+        // Draw sibling node.
+        // Pop the parent matrix node (the top of parent matrix node now are sibling model 
+        // view matrix, not parent) because sibling are using parent model view matrix.
+        this.modelViewMatrix = this.parentMatrix.pop();
+        if (currentNode.sibling != null) {
+            this.drawSceneDfs(currentNode.sibling);
         }
     }
 
@@ -418,9 +580,7 @@ class WebGlManager {
         this.gl.depthFunc(this.gl.LEQUAL); 
 
         // Calculate projection matrix.
-        const projectionMatrix = this.calculateProjectionMatrix();
-        const modelViewMatrix = this.calculateModelViewMatrix();
-        let normalMatrix = m4.inverse(modelViewMatrix);
+        let normalMatrix = m4.inverse(this.modelViewMatrix);
         normalMatrix = m4.transpose(normalMatrix);
 
         // Tell WebGL how to pull out the positions from the position
@@ -470,11 +630,11 @@ class WebGlManager {
         this.gl.uniformMatrix4fv(
             this.programInfo.uniformLocations.projectionMatrix,
             false,
-            projectionMatrix);
+            this.projectionMatrix);
         this.gl.uniformMatrix4fv(
             this.programInfo.uniformLocations.modelViewMatrix,
             false,
-            modelViewMatrix);
+            this.modelViewMatrix);
         this.gl.uniformMatrix4fv(
             this.programInfo.uniformLocations.normalMatrix,
             false,
@@ -488,6 +648,21 @@ class WebGlManager {
 
     changeShaders(){
         this.useShading = !this.useShading;
+    }
+
+    /**
+     * @description Load name of each bodypart to input label.
+     */
+    loadName(){
+        // Loop for each edge.
+        for (let i = 0; i < this.articulatedModel.edge.length; i++){
+            // Get the name of the body part.
+            const name = this.articulatedModel.edge[i].name;
+            
+            // Get the label of the body part and set the name.
+            const label = arrLabelBody[i];
+            label.innerHTML = name;
+        }
     }
 }
 
