@@ -729,6 +729,7 @@ class WebGlManager {
      * @description Setup the environment mapping.
      * @ref https://webglfundamentals.org/webgl/lessons/webgl-environment-maps.html
      * THE CODES ARE COPY PASTE WITH LITTLE MODIFICATION
+     * THE IMAGES ARE ALSO FROM WEBGL FUNDAMENTALS
      */
     setupEnvironmentMapping(){
         // Create a texture.
