@@ -101,9 +101,9 @@
                                     <li> Mainkan slider radius untuk mengatur jarak kamera  </li>
                                     <li> Mainkan slider rotate untuk melakukan rotasi pada kamera  </li>
                                 </ul>
-                                <div class="title-help">Menggunakan Shading</div>
+                                <div class="title-help">Menggunakan Shading / Texture </div>
                                 <ul>
-                                    <li> Tekan tombol shading di kolom kelima di bawah </li>
+                                    <li> Tekan tombol shading / texture di kolom kelima di bawah </li>
                                 </ul>
                                 <div class="title-help">Kembali ke default view</div>
                                 <ul>
@@ -124,7 +124,7 @@
                 </div>
             </div>
         </div>
-        <div class="row pt-3">
+        <div class="row">
             <div class="tools-container">
                 <!-- Translation Slider -->
                 <div class="col-2 pe-4">
@@ -196,7 +196,10 @@
                     <input type="checkbox" class="btn-check" id="shader-btn" autocomplete="off">
                     <label class="btn btn-sm btn-outline-primary" for="shader-btn">Shader</label>
                     <button class="btn btn-sm btn-outline-primary mt-2" id="default-view">Default</button>
-                    <button class="btn btn-sm btn-outline-primary mt-2" id="animate-view">Animate</button>
+                    <input type="checkbox" class="btn-check" id="texture-view" autocomplete="off" checked>
+                    <label class="btn btn-sm btn-outline-primary mt-2" for="texture-view">Texture</label>
+                    <input type="checkbox" class="btn-check" id="animate-view" autocomplete="off">
+                    <label class="btn btn-sm btn-outline-primary mt-2" for="animate-view">Animate</label>
                     <button class="btn btn-sm btn-warning btn-md mt-2" id="help-button" onclick="onClickHelp()">
                         Show Help
                     </button>

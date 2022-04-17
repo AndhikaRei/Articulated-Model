@@ -56,13 +56,24 @@ const resetDefault = () => {
     projectionView.value = 2;
     webglManager.projectionType = 2;
 
+    // Reset animation.
+    for (let i = 0; i < arrInputBody.length; i++) {
+        arrInputBody[i].value = 0.5;
+    }
+
+    // Reset articulated object.
+    for (let i = 0; i < webglManager.nodesRad.length; i++) {
+        webglManager.nodesRad[i] = 0;
+    }
+    
+
     webglManager.drawArticulatedObjectScene();
 }
 
 /**
  * @description imports json file to render as an articulated object.
  */
- const importData = () => {
+const importData = () => {
     // Get file input.
     var fileInput = document.getElementById('fileinput');
     var data = fileInput.files[0];
@@ -91,23 +102,35 @@ const resetDefault = () => {
         let edges = [];
         for (let i = 0; i < articulatedObj.edge.length; i++) {
             let currentEdge = articulatedObj.edge[i];
-            let newEdge = new Edge(currentEdge.topology, currentEdge.color);
+            let newEdge = new Edge(currentEdge.topology, currentEdge.color, currentEdge.joints, 
+                currentEdge.name, currentEdge.sibling, currentEdge.child, currentEdge.rotationAxis,
+                currentEdge.maxRotateAngle, currentEdge.minRotateAngle, currentEdge.rotateDirection );
             edges.push(newEdge);
         }
 
         // Construct new vertex object from parsed json.
         let vertices = articulatedObj.vertices;
+        let bumpType = articulatedObj.bumpType;
+        let rootNode = articulatedObj.rootNode;
 
         // Construct new articulated object from parsed json.
         articulatedObject = null;
-        articulatedObject = new ArticulatedObject(vertices, edges);
+        articulatedObject = new ArticulatedObject(vertices, edges, bumpType, rootNode);
         webglManager.clearScreen();
         webglManager.initBuffersArticulated(articulatedObject);
-        webglManager.drawArticulatedObjectScene();
+        webglManager.loadName();
+        resetDefault();
+	    delayDraw(100);
+	    webglManager.drawArticulatedObjectScene(true);
     };
     reader.readAsText(data);
 };
 
+/**
+ * @description Move specific body part of articulated object.
+ * @param {number} index 
+ * @param {number} ratio 
+ */
 const moveBodyPart = (index, ratio) => {
     // Check if body part with current index is exist.
     if (!webglManager.articulatedModel.edge[index]) {
@@ -128,6 +151,35 @@ const moveBodyPart = (index, ratio) => {
     webglManager.drawArticulatedObjectScene();
 }
 
+const animate = () => {
+    // Delta radian of animation body part.
+    const deltaDeg = 1;
+
+    // For each body part change the nodesRad.
+    for (let i = 0; i < webglManager.articulatedModel.edge.length; i++) {
+        // Get current body part and it's attribute.
+        const currentBodyPart = webglManager.articulatedModel.edge[i];
+        const maxAngle = currentBodyPart.maxRotateAngle;
+        const minAngle = currentBodyPart.minRotateAngle;
+        const currentAngle = radToDeg(webglManager.nodesRad[i]);
+        let rotateDirection = currentBodyPart.rotateDirection;
+        
+        // Modify nodesRad for current body part.
+        const nextAngle = currentAngle + deltaDeg * rotateDirection;
+        webglManager.nodesRad[i] = degToRad(nextAngle);
+        // If next angle is out of range, change rotate direction.
+        if (nextAngle > maxAngle || nextAngle < minAngle) {
+            webglManager.articulatedModel.edge[i].rotateDirection *= -1;
+        }
+
+        // Change the value of body input slider.
+        arrInputBody[i].value = (nextAngle - minAngle) / (maxAngle - minAngle);
+
+    }
+    
+    // Draw the object.
+    webglManager.drawArticulatedObjectScene();
+}
 /**
  * Event listener
  */
@@ -255,4 +307,29 @@ for (let i = 0; i < arrInputBody.length; i++) {
         moveBodyPart(i, ratio); 
     });
 }
+let animFrameNum = 0;
 
+const loopAnimation = () => {
+    // Update the animation.
+    animate();
+    // Request the next frame.
+    animFrameNum = requestAnimationFrame(loopAnimation);
+}
+
+// Animation.
+animateViewButton.addEventListener('click', () => {
+    // If the button is checked then request animation frame.
+    if (animateViewButton.checked) {
+        animFrameNum = requestAnimationFrame(loopAnimation);
+    }
+
+    // If the button is unchecked then cancel animation frame.
+    else {
+        cancelAnimationFrame(animFrameNum);
+    }
+});
+
+textureViewButton.addEventListener('click', () => {
+    webglManager.revertBumpType();
+    webglManager.drawArticulatedObjectScene();
+});

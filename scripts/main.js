@@ -11,7 +11,7 @@ main();
  * @description Main function of WebglProgram.
  * 
  */
-function main() {
+async function main() {
 	// Init webgl.
 	// Get gl context.
 	/**
@@ -37,8 +37,21 @@ function main() {
 	webglManager = new WebGlManager(gl, vertexShader, fragmentShader, shaderProgram);
 	articulatedObject = loadPerson();
 
+	// Console log model.
+	console.log(JSON.stringify(articulatedObject));
+
   	webglManager.initBuffersArticulated(articulatedObject);
 	webglManager.loadName();
+	await new Promise(r => setTimeout(r, 100));
+	webglManager.drawArticulatedObjectScene(true);
+}
+
+/**
+ * @description draw articulated object scene after period of time.
+ * @param {number} ms 
+ */
+async function delayDraw(ms) {
+	await new Promise(r => setTimeout(r, ms));
 	webglManager.drawArticulatedObjectScene(true);
 }
 

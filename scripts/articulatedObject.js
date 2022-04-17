@@ -17,11 +17,10 @@ class Edge {
      * @param {number} rotationAxis - The axis of rotation, 0 for x, 1 for y, 2 for z, 3 for no rotation.
      * @param {number} maxRotateAngle - The maximum angle of rotation.
      * @param {number} minRotateAngle - The minimum angle of rotation.
-     * @param {number} startRotateAngle - The start angle of rotation.
      * @param {number} rotateDirection - The direction of rotation, 1 for clockwise, -1 for counterclockwise.
      */
     constructor(topology, color, joints, name, sibling, child, rotationAxis, maxRotateAngle, 
-        minRotateAngle, startRotateAngle, rotateDirection) {
+        minRotateAngle, rotateDirection) {
         /**
          * @description List of list of vertices that represent edge faces.
          * @type {number[6][4]}
@@ -88,12 +87,6 @@ class Edge {
          */
         this.minRotateAngle = minRotateAngle;
 
-        /**
-         * @description The start angle of rotation.
-         * @type {number}
-         * @public
-         */
-        this.startRotateAngle = startRotateAngle;
 
         /**
          * @description The direction of rotation, 1 for clockwise, -1 for counterclockwise.
@@ -115,8 +108,10 @@ class ArticulatedObject {
      * @description Constructor of articulated object class.
      * @param {number[][3]} vertices - List of list of vertices in articulated object.
      * @param {Edge[]} edges - List of edge in articulated object.
+     * @param {number} bumpType - Type of bump. 0 for environment mapping, 1 for image mapping, 2 for bump mapping, 3 for using normal color.
+     * @param {number} rootNode - Index of root node in list of node.
      **/
-    constructor(vertices, edges) {
+    constructor(vertices, edges, bumpType = 3, rootNode = 0) {
         /**
          * @description List of list of vertices in articulated object.
          * @type {number[][3]}
@@ -131,6 +126,22 @@ class ArticulatedObject {
          * @public
          */
         this.edge = edges;
+
+        /**
+         * @description Type of bump. 0 for environment mapping, 1 for image mapping, 2 for bump mapping.
+         * @type {number}
+         * @public
+         * @default 0
+         */
+        this.bumpType = bumpType;
+
+        /**
+         * @description Index of root node in list of node.
+         * @type {number}
+         * @public
+         * @default 0
+         */
+        this.rootNode = rootNode;
     }
 
     /**
@@ -303,7 +314,6 @@ const loadPerson = () => {
     const hrotationAxis = 1;
     const hmaxRotateAngle = 45;
     const hminRotateAngle = -45;
-    const hstartRotateAngle = 0;
     const hrotateDirection = 1;
 
     // BODY.
@@ -314,7 +324,6 @@ const loadPerson = () => {
     const brotationAxis = 3;
     const bmaxRotateAngle = 180;
     const bminRotateAngle = 180;
-    const bstartRotateAngle = 0;
     const brotateDirection = 1;
 
     // RIGHT ARM.
@@ -325,7 +334,6 @@ const loadPerson = () => {
     const raRotationAxis = 0;
     const raMaxRotateAngle = 90;
     const raMinRotateAngle = -90;
-    const raStartRotateAngle = 0;
     const raRotateDirection = 1;
 
     // SMALL RIGHT ARM.
@@ -334,9 +342,8 @@ const loadPerson = () => {
     const sraSibling = null;
     const sraChild = null;
     const sraRotationAxis = 0;
-    const sraMaxRotateAngle = 50;
-    const sraMinRotateAngle = -50;
-    const sraStartRotateAngle = 0;
+    const sraMaxRotateAngle = 40;
+    const sraMinRotateAngle = -40;
     const sraRotateDirection = 1;
 
     // LEFT ARM.
@@ -347,8 +354,7 @@ const loadPerson = () => {
     const laRotationAxis = 0;
     const laMaxRotateAngle = 90;
     const laMinRotateAngle = -90;
-    const laStartRotateAngle = 0;
-    const laRotateDirection = 0;
+    const laRotateDirection = -1;
 
     // SMALL LEFT ARM.
     const slaJoints = [-1 * al* 0.5, -1*ah + sah , 0];
@@ -356,10 +362,9 @@ const loadPerson = () => {
     const slaSibling = null;
     const slaChild = null;
     const slaRotationAxis = 0;
-    const slaMaxRotateAngle = 50;
-    const slaMinRotateAngle = -50;
-    const slaStartRotateAngle = 0;
-    const slaRotateDirection = 0;
+    const slaMaxRotateAngle = 40;
+    const slaMinRotateAngle = -40;
+    const slaRotateDirection = -1;
 
     // RIGHT LEG.
     const rlJoints = [bl * 0.5 - ll*0.5, -1*bh*0.5, 0];
@@ -369,8 +374,7 @@ const loadPerson = () => {
     const rlRotationAxis = 0;
     const rlMaxRotateAngle = 60;
     const rlMinRotateAngle = -60;
-    const rlStartRotateAngle = 0;
-    const rlRotateDirection = 0;
+    const rlRotateDirection = -1;
 
     // SMALL RIGHT LEG.
     const srlJoints = [0, -1*lh + -0.5*bh , 0];
@@ -378,10 +382,9 @@ const loadPerson = () => {
     const srlSibling = null;
     const srlChild = null;
     const srlRotationAxis = 0;
-    const srlMaxRotateAngle = 50;
-    const srlMinRotateAngle = -50;
-    const srlStartRotateAngle = 0;
-    const srlRotateDirection = 0;
+    const srlMaxRotateAngle = 40;
+    const srlMinRotateAngle = -40;
+    const srlRotateDirection = -1;
 
     // LEFT LEG.
     const llJoints = [-1*(bl * 0.5 - ll*0.5), -1*bh*0.5, 0];
@@ -391,7 +394,6 @@ const loadPerson = () => {
     const llRotationAxis = 0;
     const llMaxRotateAngle = 60;
     const llMinRotateAngle = -60;
-    const llStartRotateAngle = 0;
     const llRotateDirection = 1;
 
     // SMALL LEFT LEG.
@@ -400,9 +402,8 @@ const loadPerson = () => {
     const sllSibling = null;
     const sllChild = null;
     const sllRotationAxis = 0;
-    const sllMaxRotateAngle = 50;
-    const sllMinRotateAngle = -50;
-    const sllStartRotateAngle = 0;
+    const sllMaxRotateAngle = 40;
+    const sllMinRotateAngle = -40;
     const sllRotateDirection = 1;
 
     const vertices = [
@@ -532,7 +533,6 @@ const loadPerson = () => {
             brotationAxis,
             bmaxRotateAngle,
             bminRotateAngle,
-            bstartRotateAngle,
             brotateDirection,
         ),
 
@@ -560,7 +560,6 @@ const loadPerson = () => {
             hrotationAxis,
             hmaxRotateAngle,
             hminRotateAngle,
-            hstartRotateAngle,
             hrotateDirection,
         ),
         // Right arm.
@@ -587,7 +586,6 @@ const loadPerson = () => {
             raRotationAxis,
             raMaxRotateAngle,
             raMinRotateAngle,
-            raStartRotateAngle,
             raRotateDirection,
         ),
 
@@ -615,7 +613,6 @@ const loadPerson = () => {
             sraRotationAxis,
             sraMaxRotateAngle,
             sraMinRotateAngle,
-            sraStartRotateAngle,
             sraRotateDirection,
         ),
 
@@ -643,7 +640,6 @@ const loadPerson = () => {
             laRotationAxis,
             laMaxRotateAngle,
             laMinRotateAngle,
-            laStartRotateAngle,
             laRotateDirection,
         ),
 
@@ -671,7 +667,6 @@ const loadPerson = () => {
             slaRotationAxis,
             slaMaxRotateAngle,
             slaMinRotateAngle,
-            slaStartRotateAngle,
             slaRotateDirection,
         ),
 
@@ -699,7 +694,6 @@ const loadPerson = () => {
             rlRotationAxis,
             rlMaxRotateAngle,
             rlMinRotateAngle,
-            rlStartRotateAngle,
             rlRotateDirection,
         ),
 
@@ -727,7 +721,6 @@ const loadPerson = () => {
             srlRotationAxis,
             srlMaxRotateAngle,
             srlMinRotateAngle,
-            srlStartRotateAngle,
             srlRotateDirection,
             ),
 
@@ -755,7 +748,6 @@ const loadPerson = () => {
             llRotationAxis,
             llMaxRotateAngle,
             llMinRotateAngle,
-            llStartRotateAngle,
             llRotateDirection,
         ),
 
@@ -783,10 +775,11 @@ const loadPerson = () => {
             sllRotationAxis,
             sllMaxRotateAngle,
             sllMinRotateAngle,
-            sllStartRotateAngle,
             sllRotateDirection,
         ),
     ];
 
-    return new ArticulatedObject(vertices, edges);
+    const bumpType = 0;
+    const rootNode = 0;
+    return new ArticulatedObject(vertices, edges, bumpType, rootNode);
 }

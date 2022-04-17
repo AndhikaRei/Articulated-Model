@@ -89,7 +89,11 @@ class programInfo {
             projectionMatrix: this.gl.getUniformLocation(program, 'uProjectionMatrix'),
             modelViewMatrix: this.gl.getUniformLocation(program, 'uModelViewMatrix'),
             normalMatrix: this.gl.getUniformLocation(program, 'uNormalMatrix'),
-            shadingBool: this.gl.getUniformLocation(program, 'uShading')
+            shadingBool: this.gl.getUniformLocation(program, 'uShading'),
+            textureType: this.gl.getUniformLocation(program, 'textureType'),
+            textureType1: this.gl.getUniformLocation(program, 'textureType1'),
+            worldCameraPosition: this.gl.getUniformLocation(program, 'u_worldCameraPosition'),
+            textureLocation: this.gl.getUniformLocation(program, 'u_texture'),
         };
     }
 }
@@ -312,6 +316,11 @@ class WebGlManager {
          * @public
          */
         this.parentMatrix = []
+
+        this.bumpTypeChoosen = 0;
+
+        this.generateTexture();
+
     }
 
     /**
@@ -380,6 +389,7 @@ class WebGlManager {
         // Save vertex positions and colors.
         this.vertices = vertices;
         this.faceColors = faceColors;
+        this.bumpTypeChoosen = articulatedObject.bumpType;
 
         // Save articulated object.
         this.articulatedModel = articulatedObject;
@@ -396,6 +406,9 @@ class WebGlManager {
             const buffer = this.initBuffers(vertices[i], faceColors[i]);
             this.buffers.push(buffer);
         }
+
+        // Generate texture for current articulated object.
+        this.generateTexture();
     }
 
     /**
@@ -413,15 +426,13 @@ class WebGlManager {
         const jointX = currentEdge.joints[0];
         const jointY = currentEdge.joints[1];
         const jointZ = currentEdge.joints[2];
-        const minRotateAngle = currentEdge.minRotateAngle;
-        const maxRotateAngle = currentEdge.maxRotateAngle;
         const rotationAxis = currentEdge.rotationAxis;
         const sibling = currentEdge.sibling;
         const child = currentEdge.child;
 
         // If first time rendering the node then set the anggle
         if (is_init) {
-            this.nodesRad[index] = degToRad(currentEdge.startRotateAngle);
+            this.nodesRad[index] = degToRad(0);
         }
 
         // Process the transformation matrix.
@@ -458,12 +469,11 @@ class WebGlManager {
 
         if (!is_first) {
             // Init nodes for all edges(object).
-            this.nodes = [];
-            for(let i = 0; i < this.articulatedModel.edge.length; i++){
+            for (let i = 0; i < this.articulatedModel.edge.length; i++){
                 this.initNodeArticulated(i, false);
             }
         }
-        this.drawSceneDfs(0);
+        this.drawSceneDfs(this.articulatedModel.rootNode);
     }
 
     /**
@@ -583,6 +593,7 @@ class WebGlManager {
         let normalMatrix = m4.inverse(this.modelViewMatrix);
         normalMatrix = m4.transpose(normalMatrix);
 
+
         // Tell WebGL how to pull out the positions from the position
         // buffer into the vertexPosition attribute
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffers.position);
@@ -640,14 +651,63 @@ class WebGlManager {
             false,
             normalMatrix);
         this.gl.uniform1i(
-                this.programInfo.uniformLocations.shadingBool,
-                this.useShading);
+            this.programInfo.uniformLocations.shadingBool,
+            this.useShading);
+
+        // Buffer processing based on the bump type.
+        if (this.bumpTypeChoosen == 0){
+            this.gl.uniform1i(
+                this.programInfo.uniformLocations.textureType, 0);
+            this.gl.uniform1i(
+                this.programInfo.uniformLocations.textureType1, 0);
+
+            const cameraPosition = [0, 0, 2];
+            this.gl.uniform3fv(this.programInfo.uniformLocations.worldCameraPosition, 
+                    cameraPosition);
+            // Tell the shader to use texture unit 0 for u_texture
+            this.gl.uniform1i(this.programInfo.uniformLocations.textureLocation, 0);
+            
+        } else {
+            // Set the mapping type.
+            this.gl.uniform1i(
+                this.programInfo.uniformLocations.textureType, 3);
+            this.gl.uniform1i(
+                this.programInfo.uniformLocations.textureType1, 3);
+           
+        }
+
         this.gl.drawElements(this.gl.TRIANGLES, vertexCount, this.gl.UNSIGNED_SHORT, 0);
-      
+
     }
 
+    /**
+     * @description Use shading or not.
+     */
     changeShaders(){
         this.useShading = !this.useShading;
+    }
+
+    revertBumpType(){
+        if (this.bumpTypeChoosen == this.articulatedModel.bumpType){
+            this.bumpTypeChoosen = 3;
+        } else {
+            this.bumpTypeChoosen = this.articulatedModel.bumpType;
+        }
+    }
+
+    /**
+     * @description Set up texture based on the bump type.
+     */
+    generateTexture() {
+        // Default texture.
+        if (!this.articulatedModel) {
+            this.setupEnvironmentMapping();
+            return;
+        } 
+        
+        if (this.bumpTypeChoosen == 0){
+            this.setupEnvironmentMapping();
+        } 
     }
 
     /**
@@ -663,6 +723,71 @@ class WebGlManager {
             const label = arrLabelBody[i];
             label.innerHTML = name;
         }
+    }
+
+    /**
+     * @description Setup the environment mapping.
+     * @ref https://webglfundamentals.org/webgl/lessons/webgl-environment-maps.html
+     * THE CODES ARE COPY PASTE WITH LITTLE MODIFICATION
+     */
+    setupEnvironmentMapping(){
+        // Create a texture.
+        var texture = this.gl.createTexture();
+        this.gl.bindTexture(this.gl.TEXTURE_CUBE_MAP, texture);
+        
+        const faceInfos = [
+            {
+                target: this.gl.TEXTURE_CUBE_MAP_POSITIVE_X, 
+                url: '../mapping/pos-x.jpg',
+            },
+            {
+                target: this.gl.TEXTURE_CUBE_MAP_NEGATIVE_X, 
+                url: '../mapping/neg-x.jpg',
+            },
+            {
+                target: this.gl.TEXTURE_CUBE_MAP_POSITIVE_Y, 
+                url: '../mapping/pos-y.jpg',
+            },
+            {
+                target: this.gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, 
+                url: '../mapping/neg-y.jpg',
+            },
+            {
+                target: this.gl.TEXTURE_CUBE_MAP_POSITIVE_Z, 
+                url: '../mapping/pos-z.jpg',
+            },
+            {
+                target: this.gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, 
+                url: '../mapping/neg-z.jpg',
+            },
+        ];
+        faceInfos.forEach((faceInfo) => {
+            const { target, url } = faceInfo;
+            
+            // Upload the canvas to the cubemap face.
+            const level = 0;
+            const internalFormat = this.gl.RGBA;
+            const width = 512;
+            const height = 512;
+            const format = this.gl.RGBA;
+            const type = this.gl.UNSIGNED_BYTE;
+            
+            // setup each face so it's immediately renderable
+            this.gl.texImage2D(target, level, internalFormat, width, height, 0, format, type, null);
+        
+            // Asynchronously load an image
+            const image = new Image();
+            // Wait for the image to load
+            image.onload = () => {
+                // Now that the image has loaded upload it to the texture.
+                this.gl.bindTexture(this.gl.TEXTURE_CUBE_MAP, texture);
+                this.gl.texImage2D(target, level, internalFormat, format, type, image);
+                this.gl.generateMipmap(this.gl.TEXTURE_CUBE_MAP);
+            };
+            image.src = url;
+        });
+        this.gl.generateMipmap(this.gl.TEXTURE_CUBE_MAP);
+        this.gl.texParameteri(this.gl.TEXTURE_CUBE_MAP, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR);
     }
 }
 

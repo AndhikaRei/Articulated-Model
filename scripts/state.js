@@ -13,22 +13,35 @@ const vert = `
     uniform mat4 uModelViewMatrix;
     uniform mat4 uProjectionMatrix;
 
+    uniform int textureType;
+
     varying lowp vec4 vColor;
     varying highp vec3 vLighting;
 
+    varying vec3 v_worldPosition;
+    varying vec3 v_worldNormal;
+
     void main(void) {
-        gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-        vColor = aVertexColor;
+        if (textureType == 0) {
+            gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+            v_worldPosition = (uModelViewMatrix * aVertexPosition).xyz;
+            v_worldNormal = mat3(uModelViewMatrix) * aVertexNormal;
 
-        // Apply lighting effect
-        highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
-        highp vec3 directionalLightColor = vec3(1, 1, 1);
-        highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
+        } else {
+            gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+            vColor = aVertexColor;
 
-        highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
+            // Apply lighting effect
+            highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
+            highp vec3 directionalLightColor = vec3(1, 1, 1);
+            highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
 
-        highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
-        vLighting = ambientLight + (directionalLightColor * directional);
+            highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
+
+            highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
+            vLighting = ambientLight + (directionalLightColor * directional);
+        }
+        
     }
 `;
 
@@ -37,15 +50,38 @@ const vert = `
  * @description Fragment shader source code.
  * */
 const frag = `
+    precision highp float;
+
     varying lowp vec4 vColor;
     varying highp vec3 vLighting;
     uniform bool uShading;
+     
+    // Passed in from the vertex shader.
+    varying vec3 v_worldPosition;
+    varying vec3 v_worldNormal;
+
+    // The texture.
+    uniform samplerCube u_texture;
+ 
+    // The position of the camera
+    uniform vec3 u_worldCameraPosition;
+
+    uniform int textureType1;
 
     void main(void) {
-        if (uShading) {
-            gl_FragColor = vec4(vColor.rgb * vLighting, vColor.a);
+        if (textureType1 == 0) {
+            vec3 worldNormal = normalize(v_worldNormal);
+            vec3 eyeToSurfaceDir = normalize(v_worldPosition - u_worldCameraPosition);
+            vec3 direction = reflect(eyeToSurfaceDir,worldNormal);
+ 
+            gl_FragColor = textureCube(u_texture, direction);
         } else {
-            gl_FragColor = vColor;
+            if (uShading) {
+                gl_FragColor = vec4(vColor.rgb * vLighting, vColor.a);
+            } else {
+                gl_FragColor = vColor;
+            }
+
         }
     }
 `;
@@ -103,8 +139,10 @@ const cameraRotateValue = document.getElementById('camera-rotate-value');
 const shaderBtn = document.getElementById('shader-btn');
 /** @type {HTMLButtonElement} */
 const defaultViewButton = document.getElementById('default-view');
-/** @type {HTMLButtonElement} */
+/** @type {HTMLInputElement} */
 const animateViewButton = document.getElementById('animate-view');
+/** @type {HTMLInputElement} */
+const textureViewButton = document.getElementById('texture-view');
 /** @type {HTMLSelectElement} */
 const projectionView = document.getElementById('projection-view');
 /** @type {HTMLButtonElement} */
