@@ -825,7 +825,7 @@ class WebGlManager {
             // Now that the image has loaded make copy it to the texture.
             this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
             this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
-            this.gl.generateMipmap(gl.TEXTURE_2D);
+            this.gl.generateMipmap(this.gl.TEXTURE_2D);
         }
     }
 }
