@@ -93,7 +93,7 @@ class programInfo {
             textureType: this.gl.getUniformLocation(program, 'textureType'),
             textureType1: this.gl.getUniformLocation(program, 'textureType1'),
             worldCameraPosition: this.gl.getUniformLocation(program, 'u_worldCameraPosition'),
-            textureLocation: this.gl.getUniformLocation(program, 'u_texture'),
+            textureLocation: this.gl.getUniformLocation(program, 'u_texture')
         };
     }
 }
@@ -667,6 +667,16 @@ class WebGlManager {
             // Tell the shader to use texture unit 0 for u_texture
             this.gl.uniform1i(this.programInfo.uniformLocations.textureLocation, 0);
             
+        } else if (this.bumpTypeChoosen == 2) {
+            this.gl.uniform1i(
+                this.programInfo.uniformLocations.textureLocation, 1);
+            this.gl.uniform1i(
+                this.programInfo.uniformLocations.textureType, 2);
+            this.gl.uniform1i(
+                this.programInfo.uniformLocations.textureType1, 2);
+            this.gl.uniform1i(
+                this.programInfo.uniformLocations.samplerLocation, 0);
+
         } else {
             // Set the mapping type.
             this.gl.uniform1i(
@@ -707,7 +717,9 @@ class WebGlManager {
         
         if (this.bumpTypeChoosen == 0){
             this.setupEnvironmentMapping();
-        } 
+        } else if (this.bumpTypeChoosen == 2) {
+            this.setupBumpMapping();
+        }
     }
 
     /**
@@ -789,6 +801,32 @@ class WebGlManager {
         });
         this.gl.generateMipmap(this.gl.TEXTURE_CUBE_MAP);
         this.gl.texParameteri(this.gl.TEXTURE_CUBE_MAP, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR);
+    }
+
+    /**
+     * @description Setup the bump mapping.
+     * @ref https://webglfundamentals.org/webgl/lessons/webgl-3d-textures.html
+     * THE CODES ARE COPY PASTE WITH LITTLE MODIFICATION
+     * THE IMAGE IS FROM https://apoorvaj.io/exploring-bump-mapping-with-webgl/
+     */
+    setupBumpMapping(){
+        // Create a texture
+        var texture = this.gl.createTexture();
+        this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+
+        // Fill the texture with a 1x1 blue pixel
+        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, 1, 1, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE,
+                           new Uint8Array([0, 0, 255, 255]));
+
+        // Asynchronously load an image
+        const image = new Image();
+        image.src = '../mapping/bump_normal.png'
+        image.onload = () => {
+            // Now that the image has loaded make copy it to the texture.
+            this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+            this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
+            this.gl.generateMipmap(gl.TEXTURE_2D);
+        }
     }
 }
 
