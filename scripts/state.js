@@ -9,6 +9,9 @@ const vert = `
     attribute vec3 aVertexNormal;
     attribute vec4 aVertexColor;
     attribute vec2 aTextureCoord;
+    attribute vec3 aVertexTangent;
+    attribute vec3 aVertexBitangent;
+
 
     uniform mat4 uNormalMatrix;
     uniform mat4 uModelViewMatrix;
@@ -21,7 +24,11 @@ const vert = `
 
     varying vec3 v_worldPosition;
     varying vec3 v_worldNormal;
-    varying highp vec2 vTextureCoord;
+    varying vec2 vTextureCoord;
+
+    varying vec3 ts_light_pos;
+    varying vec3 ts_view_pos;
+    varying vec3 ts_frag_pos;
 
     void main(void) {
         if (textureType == 0) {
@@ -82,6 +89,14 @@ const frag = `
 
     uniform int textureType1;
     uniform sampler2D uSampler;
+
+    uniform sampler2D u_sampler;
+
+    // All variables for Bump Mapping
+    varying vec3 ts_light_pos;
+    varying vec3 ts_view_pos;
+    varying vec3 ts_frag_pos;
+
 
     void main(void) {
         if (textureType1 == 0) {
