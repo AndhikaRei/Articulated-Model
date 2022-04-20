@@ -35,7 +35,7 @@ async function main() {
 
 	// Init webglManager.
 	webglManager = new WebGlManager(gl, vertexShader, fragmentShader, shaderProgram);
-	articulatedObject = loadDog();
+	articulatedObject = loadTurtle();
 
 	// Console log model.
 	console.log(JSON.stringify(articulatedObject));

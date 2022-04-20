@@ -1096,6 +1096,292 @@ function loadDog() {
     return new ArticulatedObject(vertices, edges, bumpType, rootNode)
 }
 
+function loadTurtle() {
+    let randomColorHead = randomRGB();
+    let randomColorBody = randomRGB();
+    let randomColorLegs = randomRGB();
+
+    // Body block
+    const bodyLeft = -0.4;
+    const bodyRight = 0.4;
+    const bodyTop = 0.1;
+    const bodyBottom = -0.4;
+    const bodyFront = 0;
+    const bodyBack = -1.2;
+
+    // Head block
+    const headLeft = -0.2;
+    const headRight = 0.2;
+    const headTop = 0.4;
+    const headBottom = 0;
+    const headFront = 0.4;
+    const headBack = 0;
+
+    // Left Front Leg block
+    const leftFrontLegLeft = -0.8;
+    const leftFrontLegRight = -0.4;
+    const leftFrontLegTop = -0.2;
+    const leftFrontLegBottom = -0.4;
+    const leftFrontLegFront = -0.2;
+    const leftFrontLegBack = -0.4;
+
+    // Right Front Leg block
+    const rightFrontLegLeft = 0.4;
+    const rightFrontLegRight = 0.8;
+    const rightFrontLegTop = -0.2;
+    const rightFrontLegBottom = -0.4;
+    const rightFrontLegFront = -0.2;
+    const rightFrontLegBack = -0.4
+
+    // Left Back Leg block
+    const leftBackLegLeft = -0.8;
+    const leftBackLegRight = -0.4;
+    const leftBackLegTop = -0.2;
+    const leftBackLegBottom = -0.4;
+    const leftBackLegFront = -0.8;
+    const leftBackLegBack = -1;
+
+    // Right Back Leg block
+    const rightBackLegLeft = 0.4;
+    const rightBackLegRight = 0.8;
+    const rightBackLegTop = -0.2;
+    const rightBackLegBottom = -0.4;
+    const rightBackLegFront = -0.8;
+    const rightBackLegBack = -1;
+
+    const vertices = [
+        // Body
+        ...createBlockVertices(bodyLeft, bodyRight, bodyTop, bodyBottom, bodyFront, bodyBack),
+        // Head
+        ...createBlockVertices(headLeft, headRight, headTop, headBottom, headFront, headBack),
+        // Left Front Leg
+        ...createBlockVertices(leftFrontLegLeft, leftFrontLegRight, leftFrontLegTop, leftFrontLegBottom, leftFrontLegFront, leftFrontLegBack),
+        // Right Front Leg
+        ...createBlockVertices(rightFrontLegLeft, rightFrontLegRight, rightFrontLegTop, rightFrontLegBottom, rightFrontLegFront, rightFrontLegBack),
+        // Left Back Leg
+        ...createBlockVertices(leftBackLegLeft, leftBackLegRight, leftBackLegTop, leftBackLegBottom, leftBackLegFront, leftBackLegBack),
+        // Right Back Leg
+        ...createBlockVertices(rightBackLegLeft, rightBackLegRight, rightBackLegTop, rightBackLegBottom, rightBackLegFront, rightBackLegBack)
+    ]
+
+    const bJoints = [0, 0, 0];
+    const bName = "Body";
+    const bSibling = null;
+    const bChild = 1;
+    const bRotationAxis = 3;
+    const bmaxRotateAngle = 180;
+    const bminRotateAngle = -180;
+    const brotateDirection = -1;
+
+    const hJoints = [0, 0.3, 0];
+    const hName = "Head";
+    const hSibling = 2;
+    const hChild = null;
+    const hRotationAxis = 1;
+    const hmaxRotateAngle = 30;
+    const hminRotateAngle = -30;
+    const hrotateDirection = 1;
+
+    const lfJoints = [-0.4, -0.2, -0.3];
+    const lfName = "Left Front Leg";
+    const lfSibling = 3;
+    const lfChild = null;
+    const lfRotationAxis = 1;
+    const lfmaxRotateAngle = 45;
+    const lfminRotateAngle = -45;
+    const lfrotateDirection = 1;
+
+    const rfJoints = [0.4, -0.2, -0.3];
+    const rfName = "Right Front Leg";
+    const rfSibling = 4;
+    const rfChild = null;
+    const rfRotationAxis = 1;
+    const rfmaxRotateAngle = 45;
+    const rfminRotateAngle = -45;
+    const rfrotateDirection = -1;
+
+    const lbJoints = [-0.4, -0.2, -0.9];
+    const lbName = "Left Back Leg";
+    const lbSibling = 5;
+    const lbChild = null;
+    const lbRotationAxis = 1;
+    const lbmaxRotateAngle = 45;
+    const lbminRotateAngle = -45;
+    const lbrotateDirection = 1;
+
+    const rbJoints = [0.4, -0.2, -0.9];
+    const rbName = "Right Back Leg";
+    const rbSibling = null;
+    const rbChild = null;
+    const rbRotationAxis = 1;
+    const rbmaxRotateAngle = 45;
+    const rbminRotateAngle = -45;
+    const rbrotateDirection = -1;
+
+    const edges = [
+        // Body
+        new Edge([
+            [0, 1, 2, 3], // Front face.
+            [4, 5, 6, 7], // Back face.
+            [3, 2, 6, 7], // Top face.
+            [0, 1, 5, 4], // Bottom face.
+            [1, 5, 6, 2], // Right face.
+            [0, 4, 7, 3], // Left face.
+        ], [
+            randomColorBody,
+            randomColorBody,
+            randomColorBody,
+            randomColorBody,
+            randomColorBody,
+            randomColorBody,
+        ],
+            bJoints,
+            bName,
+            bSibling,
+            bChild,
+            bRotationAxis,
+            bmaxRotateAngle,
+            bminRotateAngle,
+            brotateDirection,
+        ),
+
+        // Head
+        new Edge([
+            [8, 9, 10, 11], // Front face.
+            [12, 13, 14, 15], // Back face.
+            [11, 10, 14, 15], // Top face.
+            [8, 9, 13, 12], // Bottom face.
+            [9, 13, 14, 10], // Right face.
+            [8, 12, 15, 11], // Left face.
+        ], [
+            randomColorHead,
+            randomColorHead,
+            randomColorHead,
+            randomColorHead,
+            randomColorHead,
+            randomColorHead,
+        ], 
+            hJoints,
+            hName,
+            hSibling,
+            hChild,
+            hRotationAxis,
+            hmaxRotateAngle,
+            hminRotateAngle,
+            hrotateDirection,
+        ),
+
+        // Left Front Leg
+        new Edge([
+            [16, 17, 18, 19], // Front face.
+            [20, 21, 22, 23], // Back face.
+            [19, 18, 22, 23], // Top face.
+            [16, 17, 21, 20], // Bottom face.
+            [17, 21, 22, 18], // Right face.
+            [16, 20, 23, 19], // Left face.
+        ], [
+            randomColorLegs,
+            randomColorLegs,
+            randomColorLegs,
+            randomColorLegs,
+            randomColorLegs,
+            randomColorLegs,
+        ],
+            lfJoints,
+            lfName,
+            lfSibling,
+            lfChild,
+            lfRotationAxis,
+            lfmaxRotateAngle,
+            lfminRotateAngle,
+            lfrotateDirection,
+        ),
+
+        // Right Front Leg
+        new Edge([
+            [24, 25, 26, 27], // Front face.
+            [28, 29, 30, 31], // Back face.
+            [27, 26, 30, 31], // Top face.
+            [24, 25, 29, 28], // Bottom face.
+            [25, 29, 30, 26], // Right face.
+            [24, 28, 31, 27], // Left face.
+        ], [
+            randomColorLegs,
+            randomColorLegs,
+            randomColorLegs,
+            randomColorLegs,
+            randomColorLegs,
+            randomColorLegs,
+        ],
+            rfJoints,
+            rfName,
+            rfSibling,
+            rfChild,
+            rfRotationAxis,
+            rfmaxRotateAngle,
+            rfminRotateAngle,
+            rfrotateDirection,
+        ),
+
+        // Left Back Leg
+        new Edge([
+            [32, 33, 34, 35], // Front face.
+            [36, 37, 38, 39], // Back face.
+            [35, 34, 38, 39], // Top face.
+            [32, 33, 37, 36], // Bottom face.
+            [33, 37, 38, 34], // Right face.
+            [32, 36, 39, 35], // Left face.
+        ], [
+            randomColorLegs,
+            randomColorLegs,
+            randomColorLegs,
+            randomColorLegs,
+            randomColorLegs,
+            randomColorLegs,
+        ],
+            lbJoints,
+            lbName,
+            lbSibling,
+            lbChild,
+            lbRotationAxis,
+            lbmaxRotateAngle,
+            lbminRotateAngle,
+            lbrotateDirection,
+        ),
+
+        // Right Back Leg
+        new Edge([
+            [40, 41, 42, 43], // Front face.
+            [44, 45, 46, 47], // Back face.
+            [43, 42, 46, 47], // Top face.
+            [40, 41, 45, 44], // Bottom face.
+            [41, 45, 46, 42], // Right face.
+            [40, 44, 47, 43], // Left face.
+        ], [
+            randomColorLegs,
+            randomColorLegs,
+            randomColorLegs,
+            randomColorLegs,
+            randomColorLegs,
+            randomColorLegs,
+        ],
+            rbJoints,
+            rbName,
+            rbSibling,
+            rbChild,
+            rbRotationAxis,
+            rbmaxRotateAngle,
+            rbminRotateAngle,
+            rbrotateDirection,
+        ),
+    ]
+
+    const bumpType = 1;
+    const rootNode = 0
+
+    return new ArticulatedObject(vertices, edges, bumpType, rootNode)
+}
+
 const createBlockVertices = (left, right, top, bottom, front, back) => {
     return [
         [left, bottom, front],
