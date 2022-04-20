@@ -15,7 +15,7 @@ class Buffers {
      * @param {WebGLBuffer} color 
      * @param {WebGLBuffer} indices 
      */
-    constructor(position, color, indices, normal) {
+    constructor(position, color, indices, normal, texture) {
         /**
          * @type {WebGLBuffer}
          * @description WebGLBuffer of position.
@@ -43,6 +43,13 @@ class Buffers {
          * @public
          */
          this.normal = normal;
+
+         /**
+         * @type {WebGLBuffer}
+         * @description WebGLBuffer of texture.
+         * @public
+         */
+          this.texture = texture;
     }
 }
 
@@ -75,7 +82,8 @@ class programInfo {
         this.attribLocations = {
             vertexPosition: this.gl.getAttribLocation(program, 'aVertexPosition'),
             vertexColor: this.gl.getAttribLocation(program, 'aVertexColor'),
-            vertexNormal: this.gl.getAttribLocation(program, 'aVertexNormal')
+            vertexNormal: this.gl.getAttribLocation(program, 'aVertexNormal'),
+            texture: this.gl.getAttribLocation(program, "aTextureCoord")
         };
 
         /**
@@ -94,6 +102,7 @@ class programInfo {
             textureType1: this.gl.getUniformLocation(program, 'textureType1'),
             worldCameraPosition: this.gl.getUniformLocation(program, 'u_worldCameraPosition'),
             textureLocation: this.gl.getUniformLocation(program, 'u_texture'),
+            sampler: this.gl.getUniformLocation(program, "uSampler")
         };
     }
 }
@@ -371,9 +380,52 @@ class WebGlManager {
 
         const vertexNormal = getVectorNormal(vertices);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(vertexNormal),this.gl.STATIC_DRAW);
+
+        const textureCoordinates = [
+            // Front
+            0.0,  0.0,
+            1.0,  0.0,
+            1.0,  1.0,
+            0.0,  1.0,
+            
+            // Back
+            0.0,  0.0,
+            1.0,  0.0,
+            1.0,  1.0,
+            0.0,  1.0,
+            
+            // Top
+            0.0,  0.0,
+            1.0,  0.0,
+            1.0,  1.0,
+            0.0,  1.0,
+            
+            // Bottom
+            0.0,  0.0,
+            1.0,  0.0,
+            1.0,  1.0,
+            0.0,  1.0,
+            
+            // Right
+            0.0,  0.0,
+            1.0,  0.0,
+            1.0,  1.0,
+            0.0,  1.0,
+            
+            // Left
+            0.0,  0.0,
+            1.0,  0.0,
+            1.0,  1.0,
+            0.0,  1.0,
+        ];
+
+        const textureCoordBuffer = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, textureCoordBuffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(textureCoordinates),
+                        this.gl.STATIC_DRAW);
         
         
-        return new Buffers(positionBuffer, colorBuffer, indexBuffer, normalBuffer);
+        return new Buffers(positionBuffer, colorBuffer, indexBuffer, normalBuffer, textureCoordBuffer);
     };
 
     /**
@@ -633,6 +685,16 @@ class WebGlManager {
             this.programInfo.attribLocations.vertexNormal);
         // Tell WebGL which indices to use to index the vertices
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
+        this.gl.vertexAttribPointer(
+            this.programInfo.attribLocations.texture,
+            2,
+            this.gl.FLOAT,
+            false,
+            0,
+            0);
+        this.gl.enableVertexAttribArray(
+            this.programInfo.attribLocations.texture);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffers.texture);
       
         // Tell WebGL to use our program when drawing
         this.gl.useProgram(this.programInfo.program);
@@ -666,7 +728,13 @@ class WebGlManager {
                     cameraPosition);
             // Tell the shader to use texture unit 0 for u_texture
             this.gl.uniform1i(this.programInfo.uniformLocations.textureLocation, 0);
+            this.gl.uniform1i(this.programInfo.uniformLocations.sampler, 1);
             
+        } else if (this.bumpTypeChoosen == 1) {
+            this.gl.uniform1i(this.programInfo.uniformLocations.textureLocation, 1);
+            this.gl.uniform1i(this.programInfo.uniformLocations.textureType, 1);
+            this.gl.uniform1i(this.programInfo.uniformLocations.textureType1, 1);
+            this.gl.uniform1i(this.programInfo.uniformLocations.sampler, 0);
         } else {
             // Set the mapping type.
             this.gl.uniform1i(
@@ -707,7 +775,9 @@ class WebGlManager {
         
         if (this.bumpTypeChoosen == 0){
             this.setupEnvironmentMapping();
-        } 
+        } else if (this.bumpTypeChoosen == 1) {
+            this.setupImageMapping();
+        }
     }
 
     /**
@@ -789,6 +859,52 @@ class WebGlManager {
         });
         this.gl.generateMipmap(this.gl.TEXTURE_CUBE_MAP);
         this.gl.texParameteri(this.gl.TEXTURE_CUBE_MAP, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR);
+    }
+
+    setupImageMapping() {
+        const texture = this.gl.createTexture();
+        this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+    
+        // Because images have to be download over the internet
+        // they might take a moment until they are ready.
+        // Until then put a single pixel in the texture so we can
+        // use it immediately. When the image has finished downloading
+        // we'll update the texture with the contents of the image.
+        const level = 0;
+        const internalFormat = this.gl.RGBA;
+        const width = 1;
+        const height = 1;
+        const border = 0;
+        const srcFormat = this.gl.RGBA;
+        const srcType = this.gl.UNSIGNED_BYTE;
+        const pixel = new Uint8Array([0, 0, 255, 255]);  // opaque blue
+        this.gl.texImage2D(this.gl.TEXTURE_2D, level, internalFormat,
+                    width, height, border, srcFormat, srcType,
+                    pixel);
+    
+        const image = new Image();
+        image.onload = () => {
+            this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+            this.gl.texImage2D(this.gl.TEXTURE_2D, level, internalFormat,
+                            srcFormat, srcType, image);
+        
+            // WebGL1 has different requirements for power of 2 images
+            // vs non power of 2 images so check if the image is a
+            // power of 2 in both dimensions.
+            if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
+                // Yes, it's a power of 2. Generate mips.
+                this.gl.generateMipmap(this.gl.TEXTURE_2D);
+            } else {
+                // No, it's not a power of 2. Turn of mips and set
+                // wrapping to clamp to edge
+                this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+                this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+                this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+            }
+        };
+        image.src = "../image/fur.jpeg";
+    
+        return texture;
     }
 }
 

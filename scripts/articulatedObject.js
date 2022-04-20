@@ -1090,7 +1090,7 @@ function loadDog() {
 
     ]
 
-    const bumpType = 0
+    const bumpType = 1
     const rootNode = 0
 
     return new ArticulatedObject(vertices, edges, bumpType, rootNode)

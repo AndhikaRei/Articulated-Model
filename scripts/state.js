@@ -8,6 +8,7 @@ const vert = `
     attribute vec4 aVertexPosition;
     attribute vec3 aVertexNormal;
     attribute vec4 aVertexColor;
+    attribute vec2 aTextureCoord;
 
     uniform mat4 uNormalMatrix;
     uniform mat4 uModelViewMatrix;
@@ -20,6 +21,7 @@ const vert = `
 
     varying vec3 v_worldPosition;
     varying vec3 v_worldNormal;
+    varying highp vec2 vTextureCoord;
 
     void main(void) {
         if (textureType == 0) {
@@ -27,6 +29,17 @@ const vert = `
             v_worldPosition = (uModelViewMatrix * aVertexPosition).xyz;
             v_worldNormal = mat3(uModelViewMatrix) * aVertexNormal;
 
+        } else if (textureType == 1) {
+            gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+            vTextureCoord = aTextureCoord;
+            highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
+            highp vec3 directionalLightColor = vec3(1, 1, 1);
+            highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
+    
+            highp vec4 transformedNormal = uNormalMatrix * vec4(aVertexNormal, 1.0);
+    
+            highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
+            vLighting = ambientLight + (directionalLightColor * directional);
         } else {
             gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
             vColor = aVertexColor;
@@ -59,6 +72,7 @@ const frag = `
     // Passed in from the vertex shader.
     varying vec3 v_worldPosition;
     varying vec3 v_worldNormal;
+    varying highp vec2 vTextureCoord;
 
     // The texture.
     uniform samplerCube u_texture;
@@ -67,6 +81,7 @@ const frag = `
     uniform vec3 u_worldCameraPosition;
 
     uniform int textureType1;
+    uniform sampler2D uSampler;
 
     void main(void) {
         if (textureType1 == 0) {
@@ -75,6 +90,13 @@ const frag = `
             vec3 direction = reflect(eyeToSurfaceDir,worldNormal);
  
             gl_FragColor = textureCube(u_texture, direction);
+        } else if (textureType1 == 1) {
+            highp vec4 texelColor = texture2D(uSampler, vTextureCoord);
+            if (uShading) {
+                gl_FragColor = vec4(texelColor.rgb * vLighting, texelColor.a);
+            } else {
+                gl_FragColor = texelColor;
+            }
         } else {
             if (uShading) {
                 gl_FragColor = vec4(vColor.rgb * vLighting, vColor.a);

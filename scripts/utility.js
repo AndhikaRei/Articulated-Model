@@ -90,3 +90,11 @@ const randomRGB = () => {
     return [Math.random(), Math.random(), Math.random(), 1];
 }
 
+/**
+ * @description check if a number is power of 2
+ * * @param {number} value
+ * @returns {boolean} isPower
+ */
+function isPowerOf2(value) {
+    return (value & (value - 1)) === 0;
+  }
