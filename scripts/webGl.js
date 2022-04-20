@@ -189,10 +189,6 @@ class WebGlManager {
          */
         this.program = program
 
-        // Collect all the info needed to use the shader program.
-        // Look up which attributes our shader program is using
-        // for aVertexPosition, aVertexColor and also
-        // look up uniform locations.
         /**
          * programInfo - Program info.
          * @type {programInfo}
@@ -489,7 +485,13 @@ class WebGlManager {
 
         // Process the transformation matrix.
         transform = m4.translate(transform, jointX, jointY, jointZ);
-        transform = m4.articulatedRotate(transform, this.nodesRad[index], rotationAxis);
+        if (rotationAxis == 0){
+            transform = m4.xRotate(transform, this.nodesRad[index]);
+        } else if (rotationAxis == 1){
+            transform = m4.yRotate(transform, this.nodesRad[index]);
+        } else if (rotationAxis == 2){
+            transform = m4.zRotate(transform, this.nodesRad[index]);
+        } 
         transform = m4.translate(transform, -1 * jointX, -1 * jointY, -1 * jointZ);
 
         // Fill the nodes array.
@@ -796,6 +798,13 @@ class WebGlManager {
      * @description Load name of each bodypart to input label.
      */
     loadName(){
+
+        // Reset the name for each label.
+        for (let i = 0; i < arrLabelBody.length; i++){
+            console.log(arrLabelBody[i]);
+            arrLabelBody[i].innerHTML = "None";
+        }
+
         // Loop for each edge.
         for (let i = 0; i < this.articulatedModel.edge.length; i++){
             // Get the name of the body part.
@@ -873,6 +882,12 @@ class WebGlManager {
         this.gl.texParameteri(this.gl.TEXTURE_CUBE_MAP, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR);
     }
 
+    /**
+     * @description Setup the image mapping.
+     * @ref https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Using_textures_in_WebGL
+     * THE CODES ARE COPY PASTE WITH LITTLE MODIFICATION
+     * THE IMAGES ARE ALSO FROM WEBGL MDN
+     */
     setupImageMapping() {
         const texture = this.gl.createTexture();
         this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
