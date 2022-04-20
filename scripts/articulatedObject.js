@@ -1376,7 +1376,7 @@ function loadTurtle() {
         ),
     ]
 
-    const bumpType = 1;
+    const bumpType = 2;
     const rootNode = 0
 
     return new ArticulatedObject(vertices, edges, bumpType, rootNode)

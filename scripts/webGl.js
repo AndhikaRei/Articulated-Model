@@ -950,13 +950,23 @@ class WebGlManager {
 
         // Asynchronously load an image
         const image = new Image();
-        image.src = '../mapping/bump_normal.png'
+        image.src = '../mapping/bump_normal.png';
         image.onload = () => {
             // Now that the image has loaded make copy it to the texture.
             this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
             this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
-            this.gl.generateMipmap(this.gl.TEXTURE_2D);
-        }
+
+            if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
+                // Yes, it's a power of 2. Generate mips.
+                this.gl.generateMipmap(this.gl.TEXTURE_2D);
+            } else {
+                // No, it's not a power of 2. Turn of mips and set
+                // wrapping to clamp to edge
+                this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+                this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+                this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+            }
+        };
     }
 }
 

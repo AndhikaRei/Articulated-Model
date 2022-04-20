@@ -30,6 +30,21 @@ const vert = `
     varying vec3 ts_view_pos;
     varying vec3 ts_frag_pos;
 
+    mat3 transpose(in mat3 inMatrix)
+    {
+        vec3 i0 = inMatrix[0];
+        vec3 i1 = inMatrix[1];
+        vec3 i2 = inMatrix[2];
+
+        mat3 outMatrix = mat3(
+            vec3(i0.x, i1.x, i2.x),
+            vec3(i0.y, i1.y, i2.y),
+            vec3(i0.z, i1.z, i2.z)
+        );
+
+        return outMatrix;
+    }
+
     void main(void) {
         if (textureType == 0) {
             gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
@@ -47,6 +62,21 @@ const vert = `
     
             highp float directional = max(dot(transformedNormal.xyz, directionalVector), 0.0);
             vLighting = ambientLight + (directionalLightColor * directional);
+        } else if (textureType == 2) {
+            gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+            ts_frag_pos = vec3(uModelViewMatrix * aVertexPosition);
+            
+            vec3 t = normalize(mat3(uNormalMatrix) * aVertexTangent);
+            vec3 b = normalize(mat3(uNormalMatrix) * aVertexBitangent);
+            vec3 n = normalize(mat3(uNormalMatrix) * aVertexNormal);
+            mat3 tbn = transpose(mat3(t, b, n));
+
+            vec3 light_pos = vec3(1, 2, 0);
+            ts_light_pos = tbn * light_pos;
+            ts_view_pos = tbn * vec3(0, 0, 0);
+            ts_frag_pos = tbn * ts_frag_pos;
+
+            vTextureCoord = aTextureCoord;
         } else {
             gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
             vColor = aVertexColor;
@@ -90,8 +120,6 @@ const frag = `
     uniform int textureType1;
     uniform sampler2D uSampler;
 
-    uniform sampler2D u_sampler;
-
     // All variables for Bump Mapping
     varying vec3 ts_light_pos;
     varying vec3 ts_view_pos;
@@ -112,6 +140,14 @@ const frag = `
             } else {
                 gl_FragColor = texelColor;
             }
+        } else if (textureType1 == 2) {
+            vec3 light_dir = normalize(ts_light_pos - ts_frag_pos);
+            vec3 view_dir = normalize(ts_view_pos - ts_frag_pos);
+            vec3 albedo = texture2D(uSampler, vTextureCoord).rgb;
+            vec3 ambient = 0.3 * albedo;
+            vec3 norm = normalize(texture2D(uSampler, vTextureCoord).rgb * 2.0 - 1.0);
+            float diffuse = max(dot(light_dir, norm), 0.0);
+            gl_FragColor = vec4(diffuse * albedo + ambient, 1.0);
         } else {
             if (uShading) {
                 gl_FragColor = vec4(vColor.rgb * vLighting, vColor.a);
