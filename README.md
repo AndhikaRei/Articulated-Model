@@ -12,13 +12,16 @@ Program Articulated Object dibuat dengan menggunakan HTML, CSS, Javascript, dan 
 8. Shader yaitu tombol untuk mengaktifkan atau menonaktifkan fitur shading pada objek
 9. Show help yaitu untuk menampilkan help atau bantuan untuk langkah penggunaan program setelah ditampilkan maka tombol berubah menjadi Hide help untuk menyembunyikan atau menghilangkan help 
 
+## Tampilan Program
+![Articulated Model](image/tampilan.jpg)
+
 ## Menjalankan Program
 1. Clone repository
 2. Jalankan file index.html dengan cara membuka file tersebut
 3. Load file yang ada di folder models
 
 ## Anggota Kelompok
-Kelompok 4 kelas K01 terdiri atas:
-1. 13518021 - Zaidan Naufal Sudrajat
-2. 13519030 - Ferdy Irawan Firdaus
-3. 13519043 - Reihan Andhika Putra
+Kelompok 01 kelas K01 terdiri atas:
+1. 13519019 - Jason Stanley Yoman
+2. 13519043 - Reihan Andhika Putra
+3. 13519054 - Aisyah Farras Aqila

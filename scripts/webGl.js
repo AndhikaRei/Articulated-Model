@@ -929,7 +929,7 @@ class WebGlManager {
                 this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
             }
         };
-        image.src = "../image/fur.jpeg";
+        image.src = "../mapping/fur.jpeg";
     
         return texture;
     }
